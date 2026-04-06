@@ -1,10 +1,22 @@
 const CHARACTERS = [
-  {
-    name: "Roronoa Zoro",
-    series: "One Piece",
-    image: "https://static.wikia.nocookie.net/characterprofile/images/5/50/Roronoa_Zoro.png",
-    quote: "Nothing happened.",
-}
+
+  // Add characters below using this format:
+  //
+  // {
+  //   name: "Character Name",        ← required, must match exactly to win
+  //   series: "Series Name",         ← optional, enables series filter pills
+  //   image: "images/filename.jpg",  ← required, path relative to index.html
+  //   quote: "Their best line.",     ← optional, appears in Quote Quiz
+  //   quote2: "Another quote.",      ← optional
+  //   quote3: "A third quote.",      ← optional
+  // },
+  //
+  // Characters with no quotes will appear in Image Game and Tier List
+  // but will be skipped by the Quote Quiz automatically.
+  //
+  // Use the Mod Panel (🔧 in the drawer, password: pixel) to add characters
+  // through the site and generate the code automatically.
+
   {
     name: "Jonathan joestar",
     series: "Jojo's bizzare adventure",
@@ -14,6 +26,3 @@ const CHARACTERS = [
     quote3: "How bizarre... The Dark Knight Bruford, who I learned about in school, is filled with hate and heading straight for me!",
   },
 ];
-
-// This is the bridge that lets index.html see your list!
-window.CHARACTERS = CHARACTERS;
