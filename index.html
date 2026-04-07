@@ -6,29 +6,7 @@
   <meta name="theme-color" content="#0f0e17">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  
-  <!-- Primary Meta Tags -->
-  <title>PixelWho — Ultimate Pop Culture Character Quiz & Tier List</title>
-  <meta name="title" content="PixelWho — Ultimate Pop Culture Character Quiz & Tier List">
-  <meta name="description" content="Test your knowledge of Anime, Games, Cartoons, Marvel, DC, and more with PixelWho! Guess characters from blurred images, quotes, and music. Create tier lists, track stats, and compete on the leaderboard.">
-  <meta name="keywords" content="PixelWho, character quiz, character guesser, tier list maker, anime quiz, game trivia, marvel dc quiz, cartoon quiz, pop culture game, guess the character">
-  <meta name="author" content="PixelCheddar">
-
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://pixelwho.github.io/">
-  <meta property="og:title" content="PixelWho — Ultimate Pop Culture Character Quiz & Tier List">
-  <meta property="og:description" content="Test your knowledge of Anime, Games, Cartoons, Marvel, DC, and more with PixelWho! Guess characters from blurred images, quotes, and music. Create tier lists, track stats, and compete on the leaderboard.">
-  <meta property="og:image" content="https://placehold.co/1200x630/0f0e17/ff8906?text=PixelWho">
-
-  <!-- Twitter -->
-  <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:url" content="https://pixelwho.github.io/">
-  <meta property="twitter:title" content="PixelWho — Ultimate Pop Culture Character Quiz & Tier List">
-  <meta property="twitter:description" content="Test your knowledge of Anime, Games, Cartoons, Marvel, DC, and more with PixelWho! Guess characters from blurred images, quotes, and music. Create tier lists, track stats, and compete on the leaderboard.">
-  <meta property="twitter:image" content="https://placehold.co/1200x630/0f0e17/ff8906?text=PixelWho">
-
-  <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlBpeGVsV2hvIiwKICAic2hvcnRfbmFtZSI6ICJQaXhlbFdobyIsCiAgImRlc2NyaXB0aW9uIjogIlVsdGltYXRlIFBvcCBDdWx0dXJlIENoYXJhY3RlciBRdWl6IiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwZjBlMTciLAogICJ0aGVtZV9jb2xvciI6ICIjZmY4OTA2IiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiIjogImh0dHBzOi8vcGxhY2Vob2xkLmNvLzE5MngxOTIvMGYwZTE3L2ZmODkwNj90ZXh0PVBXIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIiwKICAgICAgInNpemVzIjogIjE5MngxOTIiCiAgICB9LAogICAgewogICAgICAic3JjIjogImh0dHBzOi8vcGxhY2Vob2xkLmNvLzUxMng1MTIvMGYwZTE3L2ZmODkwNj90ZXh0PVBpeGVsV2hvIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIiwKICAgICAgInNpemVzIjogIjUxMng1MTIiCiAgICB9CiAgXQp9">
+  <title>WhosDat</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -1358,12 +1336,12 @@
   </style>
 </head>
 <body>
-  <div id="debug-status" style="position:fixed;top:0;left:0;right:0;background:rgba(0,0,0,0.8);color:#0f0;font-family:monospace;font-size:10px;padding:2px 10px;z-index:9999;pointer-events:none;display:none;">PixelWho Debug: Ready</div>
+
   <div class="drawer-overlay" id="drawer-overlay"></div>
 
   <div class="drawer" id="drawer">
     <div class="drawer-header">
-      <div class="drawer-logo">PixelWho</div>
+      <div class="drawer-logo">WhosDat</div>
       <div class="drawer-tagline">Guess · Rank · Quiz</div>
     </div>
     <nav class="drawer-nav">
@@ -1403,7 +1381,7 @@
       <span></span><span></span><span></span>
     </button>
     <div>
-      <div class="logo">PixelWho</div>
+      <div class="logo">WhosDat</div>
       <span class="active-section-label" id="active-label">Image Game</span>
     </div>
     <button class="theme-toggle" id="theme-toggle" title="Toggle dark/light theme" aria-label="Toggle theme">🌙</button>
@@ -1867,7 +1845,7 @@
             <div class="sync-step-num">1</div>
             <div class="sync-step-body">
               Create a <strong>GitHub Personal Access Token</strong> with <code>gist</code> scope.<br>
-              <a class="sync-link" href="https://github.com/settings/tokens/new?scopes=gist&description=PixelWho+Sync" target="_blank" rel="noopener">Open token page ↗</a>
+              <a class="sync-link" href="https://github.com/settings/tokens/new?scopes=gist&description=WhosDat+Sync" target="_blank" rel="noopener">Open token page ↗</a>
               <span style="font-size:0.75rem;color:var(--muted)"> (check "Gist", set any expiry, click Generate)</span>
             </div>
           </div>
@@ -2001,12 +1979,12 @@
   let OPEDS = [];
   (function loadOpeds() {
     try {
-      const saved = JSON.parse(localStorage.getItem('pixelwho-opeds') || '[]');
+      const saved = JSON.parse(localStorage.getItem('whosdat-opeds') || '[]');
       if (Array.isArray(saved)) OPEDS = saved;
     } catch(e) {}
   })();
   window.OPEDS = OPEDS;
-  function saveOpeds() { try { localStorage.setItem('pixelwho-opeds', JSON.stringify(window.OPEDS)); } catch(e) {} }
+  function saveOpeds() { try { localStorage.setItem('whosdat-opeds', JSON.stringify(window.OPEDS)); } catch(e) {} }
 
   // ═══════════════════════════════════════════════════
   //  PERSISTED CHARACTERS  (saved via Mod Panel on mobile)
@@ -2014,7 +1992,7 @@
   // ═══════════════════════════════════════════════════
   (function loadPersistedChars() {
     try {
-      const saved = JSON.parse(localStorage.getItem('pixelwho-saved-chars') || '[]');
+      const saved = JSON.parse(localStorage.getItem('whosdat-saved-chars') || '[]');
       saved.forEach(c => {
         if (c && c.name && c.image && !CHARACTERS.find(x => x.name === c.name)) {
           CHARACTERS.push(c);
@@ -2027,13 +2005,13 @@
 
   // Helper: write persisted chars back to localStorage
   function _savedCharNames() {
-    try { return JSON.parse(localStorage.getItem('pixelwho-saved-chars') || '[]').map(c=>c.name); } catch(e){ return []; }
+    try { return JSON.parse(localStorage.getItem('whosdat-saved-chars') || '[]').map(c=>c.name); } catch(e){ return []; }
   }
   function savePersistedChars(arr) {
-    try { localStorage.setItem('pixelwho-saved-chars', JSON.stringify(arr)); } catch(e) {}
+    try { localStorage.setItem('whosdat-saved-chars', JSON.stringify(arr)); } catch(e) {}
   }
   function getPersistedChars() {
-    try { return JSON.parse(localStorage.getItem('pixelwho-saved-chars') || '[]'); } catch(e){ return []; }
+    try { return JSON.parse(localStorage.getItem('whosdat-saved-chars') || '[]'); } catch(e){ return []; }
   }
 
   // ═══════════════════════════════════════════════════
@@ -2123,38 +2101,8 @@
   // ═══════════════════════════════════════════════════
   //  GAME (Levels 1 + Level A)
   // ═══════════════════════════════════════════════════
-    let streak=0, guessesLeft=5, currentChar=null, gameState='playing', pool=[], acIndex=-1;
+  let streak=0, guessesLeft=5, currentChar=null, gameState='playing', pool=[], acIndex=-1;
   let blurMode = false, dailyMode = false, hintUsed = false, cropMode = false;
-  
-  // ── SOUND EFFECTS ──────────────────────────────────────────
-  const SOUNDS = {
-    correct: new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3'),
-    wrong: new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3'),
-    click: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'),
-    levelUp: new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3')
-  };
-  let isMuted = localStorage.getItem('pixelwho-muted') === 'true';
-  function playSFX(name) {
-    if (isMuted || !SOUNDS[name]) return;
-    SOUNDS[name].currentTime = 0;
-    SOUNDS[name].play().catch(() => {});
-  }
-  
-  // ── KEYBOARD SHORTCUTS ─────────────────────────────────────
-  window.addEventListener('keydown', e => {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-      if (e.key === 'Escape') e.target.blur();
-      return;
-    }
-    const key = e.key.toLowerCase();
-    if (key === 't') document.getElementById('theme-toggle').click();
-    if (key === 's') document.getElementById('sound-toggle').click();
-    if (key === 'm') openDrawer();
-    if (key === '1') document.querySelector('.gmode-btn[data-gmode="normal"]')?.click();
-    if (key === '2') document.querySelector('.gmode-btn[data-gmode="blur"]')?.click();
-    if (key === '3') document.querySelector('.gmode-btn[data-gmode="crop"]')?.click();
-    if (key === '4') document.querySelector('.gmode-btn[data-gmode="daily"]')?.click();
-  });
   const BLUR_START = 20, BLUR_STEP = 4;
   const CROP_INSETS = [42, 35, 28, 21, 14, 7];
 
@@ -2166,9 +2114,9 @@
     return chars[dailySeed(todayStr()) % chars.length];
   }
   function loadDailyResult() {
-    try { const s=localStorage.getItem('pixelwho-daily-'+todayStr()); return s?JSON.parse(s):null; } catch(e){ return null; }
+    try { const s=localStorage.getItem('whosdat-daily-'+todayStr()); return s?JSON.parse(s):null; } catch(e){ return null; }
   }
-  function saveDailyResult(obj) { try{localStorage.setItem('pixelwho-daily-'+todayStr(),JSON.stringify(obj));}catch(e){} }
+  function saveDailyResult(obj) { try{localStorage.setItem('whosdat-daily-'+todayStr(),JSON.stringify(obj));}catch(e){} }
 
   const CATCHPHRASES = [
     { text:'ゴゴゴゴゴゴゴ',        color:'#9b59b6', cls:'menacing', dur:2200 },
@@ -2229,8 +2177,8 @@
     });
   });
 
-  let charImg      = document.getElementById('char-img');
-  let loadCover    = document.getElementById('loading-cover');
+  const charImg      = document.getElementById('char-img');
+  const loadCover    = document.getElementById('loading-cover');
   const resOverlay   = document.getElementById('result-overlay');
   const resIcon      = document.getElementById('result-icon');
   const resName      = document.getElementById('result-name');
@@ -2276,11 +2224,6 @@
   function loadNext(){
     if(dailyMode){ loadDailyMode(); return; }
     if(!pool.length) resetPool();
-    if(!pool.length) {
-      // Still no characters after resetPool? Show empty state
-      initGame();
-      return;
-    }
     currentChar=pool.pop();
     clearGameUI();
     applyImageLoad();
@@ -2374,10 +2317,10 @@
         else if(i===wrongCount && won) dots+='🟩';
         else dots+='⬛';
       }
-      return (dailyMode||result) ? `PixelWho Daily ${today}\n${dots}\n${guessNum}/${maxG}` : `PixelWho 🎮\n${dots}`;
+      return (dailyMode||result) ? `WhosDat Daily ${today}\n${dots}\n${guessNum}/${maxG}` : `WhosDat 🎮\n${dots}`;
     } else {
-      if(won) return (dailyMode||result) ? `I got the PixelWho Daily! It was ${name} in ${guessNum}/${maxG} guesses! (${today})` : `I got ${name} in ${guessNum} guess${guessNum===1?'':'es'} on PixelWho!`;
-      else return (dailyMode||result) ? `I failed the PixelWho Daily — it was ${name}. (${today})` : `I couldn't get ${name} on PixelWho!`;
+      if(won) return (dailyMode||result) ? `I got the WhosDat Daily! It was ${name} in ${guessNum}/${maxG} guesses! (${today})` : `I got ${name} in ${guessNum} guess${guessNum===1?'':'es'} on WhosDat!`;
+      else return (dailyMode||result) ? `I failed the WhosDat Daily — it was ${name}. (${today})` : `I couldn't get ${name} on WhosDat!`;
     }
   }
 
@@ -2405,8 +2348,8 @@
   
   function shareQuizResult(spoilerFree) {
     const text = spoilerFree 
-      ? 'I got a Quote Quiz right on PixelWho! 🎯'
-      : 'I got ' + quizChar.name + ' on PixelWho Quote Quiz!';
+      ? 'I got a Quote Quiz right on WhosDat! 🎯'
+      : 'I got ' + quizChar.name + ' on WhosDat Quote Quiz!';
     navigator.clipboard.writeText(text).then(()=>{
       const btn = spoilerFree ? document.getElementById('quiz-share-spoiler') : document.getElementById('quiz-share-normal');
       const orig = btn.textContent;
@@ -2417,8 +2360,8 @@
   
   function shareOpedResult(spoilerFree) {
     const text = spoilerFree
-      ? 'I got an OP/ED right on PixelWho! 🎵'
-      : 'I got ' + opedCurrent.title + ' on PixelWho OP/ED Quiz!';
+      ? 'I got an OP/ED right on WhosDat! 🎵'
+      : 'I got ' + opedCurrent.title + ' on WhosDat OP/ED Quiz!';
     navigator.clipboard.writeText(text).then(()=>{
       const btn = spoilerFree ? document.getElementById('oped-share-spoiler') : document.getElementById('oped-share-normal');
       const orig = btn.textContent;
@@ -2437,7 +2380,7 @@
 
   function win(){
     gameState='correct'; streak++;
-    playSFX('correct');
+    playCorrectSound();
     charImg.style.filter=''; charImg.style.clipPath=''; charImg.classList.remove('crop-mode');
     setStreak(streak); gInput.disabled=true; gInput.classList.add('flash-correct');
     resName.textContent=currentChar.name; resOverlay.className='result-overlay correct';
@@ -2445,15 +2388,13 @@
     const maxGuesses = cropMode ? 6 : 5;
     if(!dailyMode){ nextBtn.classList.add('show'); skipBtn.classList.add('hide'); }
     shareRow.classList.add('show');
-    if (!currentChar.exclude) {
-      recordGame(true, streak);
-    }
-    if(streak>0 && streak%5===0) { showMilestone(streak); playSFX('levelUp'); updateGlobalLeaderboard(streak); }
+    recordGame(true, streak);
+    if(streak>0 && streak%5===0) { showMilestone(streak); playMilestoneSound(); }
     if(dailyMode){ saveDailyResult({won:true,wrongCount:maxGuesses-guessesLeft,name:currentChar.name,maxGuesses}); showDailyComplete({won:true,wrongCount:maxGuesses-guessesLeft,name:currentChar.name,maxGuesses}); }
   }
 
   function miss(text){
-    playSFX('wrong');
+    playWrongSound();
     const maxGuesses = cropMode ? 6 : 5;
     dots[maxGuesses-guessesLeft].classList.add('used'); guessesLeft--;
     if(blurMode){ const b=Math.max(0,BLUR_START-(maxGuesses-guessesLeft)*BLUR_STEP); charImg.style.filter='blur('+b+'px)'; }
@@ -2474,59 +2415,18 @@
     hintBtn.style.display='none';
     if(!dailyMode){ nextBtn.classList.add('show'); skipBtn.classList.add('hide'); }
     shareRow.classList.add('show');
-    if (!currentChar.exclude) {
-      recordGame(false, 0);
-    }
+    recordGame(false, 0);
     if(dailyMode){ saveDailyResult({won:false,wrongCount:maxGuesses,name:currentChar.name,maxGuesses}); showDailyComplete({won:false,wrongCount:maxGuesses,name:currentChar.name,maxGuesses}); }
   }
 
   function setStreak(n){ strCount.textContent=n; strCount.classList.remove('bump'); void strCount.offsetWidth; strCount.classList.add('bump'); }
 
-  // Levenshtein distance for fuzzy matching
-  function levenshtein(a, b) {
-    const matrix = Array.from({ length: a.length + 1 }, (_, i) => [i]);
-    for (let j = 1; j <= b.length; j++) matrix[0][j] = j;
-    for (let i = 1; i <= a.length; i++) {
-      for (let j = 1; j <= b.length; j++) {
-        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-        matrix[i][j] = Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + cost);
-      }
-    }
-    return matrix[a.length][b.length];
-  }
-
-  function getFuzzyHits(q, pool) {
-    if (!q) return [];
-    const lowerQ = q.toLowerCase();
-    return pool
-      .map(c => {
-        const name = c.name.toLowerCase();
-        let score = 100;
-        if (name === lowerQ) score = 0;
-        else if (name.startsWith(lowerQ)) score = 1;
-        else if (name.includes(lowerQ)) score = 5;
-        else {
-          const dist = levenshtein(lowerQ, name);
-          if (dist <= 2) score = 10 + dist;
-        }
-        return { char: c, score };
-      })
-      .filter(h => h.score <= 12)
-      .sort((a, b) => a.score - b.score)
-      .slice(0, 6)
-      .map(h => h.char);
-  }
-
   gInput.addEventListener('input',()=>{
-    const q=gInput.value.trim(); if(!q){closeAC();return;}
-    const hits=getFuzzyHits(q, filteredChars());
+    const q=gInput.value.trim().toLowerCase(); if(!q){closeAC();return;}
+    const hits=filteredChars().filter(c=>c.name.toLowerCase().includes(q)).slice(0,6);
     if(!hits.length){closeAC();return;}
     acIndex=-1;
-    acList.innerHTML=hits.map(c=>{ 
-      const name = c.name, lo = name.toLowerCase(), qi = lo.indexOf(q.toLowerCase());
-      if (qi !== -1) return `<div class="ac-item" data-name="${name}">${name.slice(0,qi)}<em>${name.slice(qi,qi+q.length)}</em>${name.slice(qi+q.length)}</div>`;
-      return `<div class="ac-item" data-name="${name}">${name}</div>`;
-    }).join('');
+    acList.innerHTML=hits.map(c=>{ const lo=c.name.toLowerCase(),i=lo.indexOf(q); return `<div class="ac-item" data-name="${c.name}">${c.name.slice(0,i)}<em>${c.name.slice(i,i+q.length)}</em>${c.name.slice(i+q.length)}</div>`; }).join('');
     acList.classList.add('open');
   });
   gInput.addEventListener('keydown',e=>{
@@ -2546,8 +2446,17 @@
   document.addEventListener('keydown', e => {
     const focused = document.activeElement;
     const typingInInput = focused && (focused.tagName==='INPUT'||focused.tagName==='TEXTAREA');
+    const gameActive = document.getElementById('game-section').classList.contains('active');
     const tierActive = document.getElementById('tierlist-section').classList.contains('active');
 
+    if(e.code==='Space' && gameActive && !typingInInput && !dailyMode){
+      e.preventDefault();
+      if(gameState==='playing'){ streak=0; setStreak(0); loadNext(); }
+    }
+    if(e.key==='Enter' && gameActive && !typingInInput){
+      e.preventDefault();
+      if(nextBtn.classList.contains('show') && !dailyMode) loadNext();
+    }
     if((e.ctrlKey||e.metaKey) && e.key==='z' && tierActive){
       e.preventDefault();
       undoTL();
@@ -2565,7 +2474,7 @@
     {id:'f',label:'F',color:'#6272a4'},
   ];
 
-  const TL_SLOTS_KEY = 'pixelwho-tl-slots-v2';
+  const TL_SLOTS_KEY = 'whosdat-tl-slots-v2';
   const TL_SLOT_COUNT = 5;
   let currentSlot = 0;
 
@@ -2919,15 +2828,14 @@
   const quizAcList = document.getElementById('quiz-autocomplete');
 
   quizInput.addEventListener('input', () => {
-    const q = quizInput.value.trim();
+    const q = quizInput.value.trim().toLowerCase();
     if (!q) { closeQuizAC(); return; }
-    const hits = getFuzzyHits(q, filteredChars());
+    const hits = filteredChars().filter(c => c.name.toLowerCase().includes(q)).slice(0, 6);
     if (!hits.length) { closeQuizAC(); return; }
     quizAcIndex = -1;
     quizAcList.innerHTML = hits.map(c => {
-      const name = c.name, lo = name.toLowerCase(), qi = lo.indexOf(q.toLowerCase());
-      if (qi !== -1) return `<div class="ac-item" data-name="${name}">${name.slice(0,qi)}<em>${name.slice(qi,qi+q.length)}</em>${name.slice(qi+q.length)}</div>`;
-      return `<div class="ac-item" data-name="${name}">${name}</div>`;
+      const lo = c.name.toLowerCase(), i = lo.indexOf(q);
+      return `<div class="ac-item" data-name="${c.name}">${c.name.slice(0,i)}<em>${c.name.slice(i,i+q.length)}</em>${c.name.slice(i+q.length)}</div>`;
     }).join('');
     quizAcList.classList.add('open');
   });
@@ -2967,7 +2875,7 @@
   // ═══════════════════════════════════════════════════
   //  STATS SYSTEM
   // ═══════════════════════════════════════════════════
-  const STATS_KEY = 'pixelwho-stats-v2';
+  const STATS_KEY = 'whosdat-stats-v2';
 
   function loadStats() {
     try { const s = localStorage.getItem(STATS_KEY); if (s) return JSON.parse(s); } catch(e) {}
@@ -2993,14 +2901,6 @@
     if (correct) st[difficulty].correct++;
     if (currentStreak > st[difficulty].bestStreak) st[difficulty].bestStreak = currentStreak;
     
-    // Character Popularity Stats
-    if (currentChar) {
-      if (!st.popularity) st.popularity = {};
-      if (!st.popularity[currentChar.name]) st.popularity[currentChar.name] = { wins: 0, appearances: 0 };
-      st.popularity[currentChar.name].appearances++;
-      if (correct) st.popularity[currentChar.name].wins++;
-    }
-
     saveStats(st);
     check9000(st);
   }
@@ -3072,7 +2972,7 @@
       const catVal = document.getElementById('tl-category').value.trim();
       const titleEl = document.createElement('div');
       titleEl.style.cssText = 'font-family:Bebas Neue,sans-serif;font-size:1.8rem;letter-spacing:0.08em;color:#ff8906;margin-bottom:16px;';
-      titleEl.textContent = catVal ? 'PixelWho — ' + catVal : 'PixelWho Tier List';
+      titleEl.textContent = catVal ? 'WhosDat — ' + catVal : 'WhosDat Tier List';
       snap.appendChild(titleEl);
 
       const tlClone = document.getElementById('tier-list').cloneNode(true);
@@ -3086,36 +2986,19 @@
 
       const wm = document.createElement('div');
       wm.style.cssText = 'margin-top:12px;font-size:0.7rem;color:rgba(167,169,190,0.35);text-align:right;';
-      wm.textContent = 'PixelWho · ' + new Date().toLocaleDateString();
+      wm.textContent = 'WhosDat · ' + new Date().toLocaleDateString();
       snap.appendChild(wm);
 
       document.body.appendChild(snap);
       await new Promise(r => setTimeout(r, 100));
 
-      const canvas = await html2canvas(snap, { 
-        backgroundColor: '#0f0e17', 
-        scale: 2, 
-        useCORS: true, 
-        allowTaint: true, 
-        logging: false,
-        onclone: (clonedDoc) => {
-          clonedDoc.querySelectorAll('img').forEach(img => {
-            if (img.src.startsWith('http')) {
-              img.crossOrigin = 'anonymous';
-            }
-          });
-        }
-      });
+      const canvas = await html2canvas(snap, { backgroundColor: '#0f0e17', scale: 2, useCORS: true, allowTaint: true, logging: false });
       document.body.removeChild(snap);
 
-      canvas.toBlob((blob) => {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.download = `pixelwho-tierlist-${new Date().getTime()}.png`;
-        link.href = url;
-        link.click();
-        URL.revokeObjectURL(url);
-      }, 'image/png');
+      const link = document.createElement('a');
+      link.download = 'whosdat-tierlist.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
     } catch(err) {
       alert('Export failed. Try again or use a screenshot instead.');
       console.error(err);
@@ -3164,18 +3047,6 @@
       if (btn.dataset.modtab === 'series') { renderSeriesLibrary(); }
     });
   });
-
-  // Batch Operations (Delete All in Series)
-  function batchDeleteSeries(seriesName) {
-    if (!confirm(`Are you sure you want to delete ALL characters from "${seriesName}"?`)) return;
-    const initialCount = CHARACTERS.length;
-    CHARACTERS = CHARACTERS.filter(c => c.series !== seriesName);
-    const deletedCount = initialCount - CHARACTERS.length;
-    savePersistedChars(getPersistedChars().filter(c => c.series !== seriesName));
-    renderSeriesLibrary();
-    updateModCharCount();
-    alert(`Deleted ${deletedCount} characters.`);
-  }
 
   const modSeriesInput = document.getElementById('mod-series');
   const modSeriesAc    = document.getElementById('mod-series-ac');
@@ -3341,14 +3212,14 @@
   (function initNoQuoteHint() {
     const hint = document.getElementById('no-quote-hint');
     const closeBtn = document.getElementById('no-quote-hint-close');
-    if (localStorage.getItem('pixelwho-quote-hint-dismissed')) return;
+    if (localStorage.getItem('whosdat-quote-hint-dismissed')) return;
     window._showNoQuoteHintIfNeeded = function() {
-      if (localStorage.getItem('pixelwho-quote-hint-dismissed')) return;
+      if (localStorage.getItem('whosdat-quote-hint-dismissed')) return;
       hint.style.display = 'flex';
     };
     closeBtn.addEventListener('click', () => {
       hint.style.display = 'none';
-      localStorage.setItem('pixelwho-quote-hint-dismissed', '1');
+      localStorage.setItem('whosdat-quote-hint-dismissed', '1');
     });
   })();
 
@@ -3792,15 +3663,7 @@
             }
         };
         
-        const delBtn = document.createElement('button');
-        delBtn.className = 'series-lib-rename';
-        delBtn.style.borderColor = 'var(--wrong)';
-        delBtn.style.color = 'var(--wrong)';
-        delBtn.textContent = 'Delete All';
-        delBtn.onclick = () => batchDeleteSeries(sName);
-
         actions.appendChild(renBtn);
-        actions.appendChild(delBtn);
         item.appendChild(info);
         item.appendChild(actions);
         list.appendChild(item);
@@ -3838,32 +3701,18 @@
   // ═══════════════════════════════════════════════════
   //  GIST SYNC
   // ═══════════════════════════════════════════════════
-  const SYNC_TOKEN_KEY   = 'pixelwho-sync-token';
-  const SYNC_GIST_KEY    = 'pixelwho-sync-gist';
+  const SYNC_TOKEN_KEY   = 'whosdat-sync-token';
+  const SYNC_GIST_KEY    = 'whosdat-sync-gist';
   const SYNC_FILENAME    = 'characters.json';
 
   let syncToken  = '';
   let syncGistId = '';
   let syncBusy   = false;
 
-  function updateDebug(msg) {
-    const el = document.getElementById('debug-status');
-    if (el) {
-      el.style.display = 'block';
-      el.textContent = 'PixelWho Debug: ' + msg;
-      console.log('DEBUG:', msg);
-    }
-  }
-
   function syncLoad() {
     try {
-      syncToken  = localStorage.getItem(SYNC_TOKEN_KEY)  || localStorage.getItem('whosdat-sync-token') || '';
-      syncGistId = localStorage.getItem(SYNC_GIST_KEY)   || localStorage.getItem('whosdat-sync-gist')  || '';
-      // If found old keys, migrate them
-      if (!localStorage.getItem(SYNC_TOKEN_KEY) && localStorage.getItem('whosdat-sync-token')) {
-        localStorage.setItem(SYNC_TOKEN_KEY, localStorage.getItem('whosdat-sync-token'));
-        localStorage.setItem(SYNC_GIST_KEY, localStorage.getItem('whosdat-sync-gist'));
-      }
+      syncToken  = localStorage.getItem(SYNC_TOKEN_KEY)  || '';
+      syncGistId = localStorage.getItem(SYNC_GIST_KEY)   || '';
     } catch(e) {}
   }
 
@@ -3914,45 +3763,28 @@
   let lastGistUpdate = '';
 
   async function gistFetch() {
-    updateDebug("Fetching Gist: " + syncGistId);
     const r = await fetch('https://api.github.com/gists/' + syncGistId, {
       headers: {
         'Authorization': 'Bearer ' + syncToken,
         'Accept': 'application/vnd.github+json'
       }
     });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
+    if (!r.ok) throw new Error('HTTP ' + r.status + (r.status === 401 ? ' — check your token' : r.status === 404 ? ' — Gist not found' : ''));
     
+    lastGistEtag = r.headers.get('ETag');
     const data = await r.json();
-    updateDebug("Gist data received. Scanning files...");
+    lastGistUpdate = data.updated_at;
     
     let chars = [];
-    let opeds = [];
-    
-    // 1. Try exact filenames first for priority
     if (data.files['characters.json']) {
-      try { chars = JSON.parse(data.files['characters.json'].content); } catch(e){}
+      try { chars = JSON.parse(data.files['characters.json'].content); } catch(e) {}
+    } else if (data.files[SYNC_FILENAME]) {
+      try { chars = JSON.parse(data.files[SYNC_FILENAME].content); } catch(e) {}
     }
+    
+    let opeds = [];
     if (data.files['opeds.json']) {
-      try { opeds = JSON.parse(data.files['opeds.json'].content); } catch(e){}
-    }
-
-    // 2. Scan EVERY file in the Gist if still missing data
-    for (const filename in data.files) {
-      const file = data.files[filename];
-      try {
-        const parsed = JSON.parse(file.content);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          if (chars.length === 0 && (parsed[0].name || parsed[0].image)) {
-            chars = parsed;
-            updateDebug("Found " + chars.length + " characters in " + filename);
-          }
-          else if (opeds.length === 0 && (parsed[0].youtubeId || parsed[0].title)) {
-            opeds = parsed;
-            updateDebug("Found " + opeds.length + " OP/EDs in " + filename);
-          }
-        }
-      } catch(e) {}
+      try { opeds = JSON.parse(data.files['opeds.json'].content); } catch(e) {}
     }
     
     return { chars, opeds };
@@ -4033,43 +3865,8 @@
         }
       });
 
-      if (cAdded || chars.length > 0) { 
-        updateDebug("Refreshing game state...");
-        
-        // Ensure global CHARACTERS is updated if we pulled from Gist
-        if (chars.length > 0) window.CHARACTERS = chars;
-        
-        buildSeriesFilter(); 
-        updateModCharCount(); 
-        renderEditList(); 
-        renderNoQuote(); 
-        
-        // Restore game UI elements if they were replaced by the "No characters" message
-        const card = document.getElementById('char-card');
-        if (card && card.innerHTML.includes('No characters found')) {
-            card.innerHTML = `
-              <img id="char-img" src="" alt="Guess this character">
-              <div class="loading-cover" id="loading-cover"><div class="spinner"></div></div>
-              <div class="result-overlay" id="result-overlay">
-                <div class="result-icon" id="result-icon"></div>
-                <div class="result-name" id="result-name"></div>
-              </div>
-              <button id="fs-expand-btn" onclick="openLightbox()" title="View Fullscreen">⤢</button>
-            `;
-            // Re-assign variables to the new DOM elements
-            charImg = document.getElementById('char-img');
-            loadCover = document.getElementById('loading-cover');
-        }
-        
-        resetPool(); 
-        loadNext();
-        updateDebug("Game started!");
-      }
-      if (oAdded) { 
-        saveOpeds(); 
-        renderOpedEntryList(); 
-        opedPool = [...window.OPEDS].sort(() => Math.random() - 0.5); 
-      }
+      if (cAdded) { buildSeriesFilter(); updateModCharCount(); renderEditList(); renderNoQuote(); }
+      if (oAdded) { saveOpeds(); renderOpedEntryList(); opedPool = [...window.OPEDS].sort(() => Math.random() - 0.5); }
       
       syncSave();
       setSyncConnectedUI(true);
@@ -4103,29 +3900,6 @@
       buildSeriesFilter(); updateModCharCount(); renderEditList(); renderNoQuote(); renderOpedEntryList();
       opedPool = [...window.OPEDS].sort(() => Math.random() - 0.5);
       updateSyncCharCount();
-      
-      // Safety: Restore game card if it was replaced by error message
-      const card = document.getElementById('char-card');
-      if (card && card.innerHTML.includes('No characters found')) {
-          card.innerHTML = `
-            <img id="char-img" src="" alt="Guess this character">
-            <div class="loading-cover" id="loading-cover"><div class="spinner"></div></div>
-            <div class="result-overlay" id="result-overlay">
-              <div class="result-icon" id="result-icon"></div>
-              <div class="result-name" id="result-name"></div>
-            </div>
-            <button id="fs-expand-btn" onclick="openLightbox()" title="View Fullscreen">⤢</button>
-          `;
-          // Re-bind global elements
-          window.charImg = document.getElementById('char-img');
-          window.loadCover = document.getElementById('loading-cover');
-          // Re-assign local references used in functions
-          if (typeof charImg !== 'undefined') charImg = window.charImg;
-          if (typeof loadCover !== 'undefined') loadCover = window.loadCover;
-      }
-      
-      resetPool();
-      loadNext();
       showSyncStatus(`✅ Pulled ${chars.length} chars, ${opeds.length} OP/EDs.`, 'ok');
     } catch(e) {
       showSyncStatus('❌ Pull failed: ' + e.message, 'err', 5000);
@@ -4232,7 +4006,7 @@
   let opedGuessesLeft = 5, opedState = 'idle';
   let opedClipTimer = null, opedProgressTimer = null;
   let opedAcIndex = -1;
-  let opedVolume = parseInt(localStorage.getItem('pixelwho-oped-volume')) || 100;
+  let opedVolume = parseInt(localStorage.getItem('whosdat-oped-volume')) || 100;
 
   let ytPlayer = null, ytReady = false, ytPendingPlay = null;
 
@@ -4251,7 +4025,7 @@
               volSlider.addEventListener('input', (e) => {
                   opedVolume = parseInt(e.target.value);
                   ytPlayer.setVolume(opedVolume);
-                  localStorage.setItem('pixelwho-oped-volume', opedVolume);
+                  localStorage.setItem('whosdat-oped-volume', opedVolume);
               });
           }
           if (ytPendingPlay) { ytPendingPlay(); ytPendingPlay = null; }
@@ -4616,7 +4390,7 @@
   });
 
   // Theme Toggle
-  const THEME_KEY = 'pixelwho-theme';
+  const THEME_KEY = 'whosdat-theme';
   function initTheme() {
     const saved = localStorage.getItem(THEME_KEY) || 'dark';
     applyTheme(saved);
@@ -4633,7 +4407,6 @@
     }
   }
   document.getElementById('theme-toggle').addEventListener('click', () => {
-    playSFX('click');
     const current = localStorage.getItem(THEME_KEY) || 'dark';
     const next = current === 'dark' ? 'light' : 'dark';
     applyTheme(next);
@@ -4641,7 +4414,7 @@
   initTheme();
 
   // Sound Effects
-  const SOUND_KEY = 'pixelwho-sound-enabled';
+  const SOUND_KEY = 'whosdat-sound-enabled';
   let soundEnabled = localStorage.getItem(SOUND_KEY) !== 'false';
   const soundToggle = document.getElementById('sound-toggle');
   
@@ -4672,85 +4445,40 @@
     } catch(e) {}
   }
   
-  function playCorrectSound() { playSFX('correct'); }
-  function playWrongSound() { playSFX('wrong'); }
-  function playMilestoneSound() { playSFX('levelUp'); }
+  function playCorrectSound() { playSound(800, 0.2); playSound(1000, 0.2); }
+  function playWrongSound() { playSound(300, 0.15); playSound(250, 0.15); }
+  function playMilestoneSound() { playSound(1200, 0.1); playSound(1400, 0.1); playSound(1200, 0.1); }
   
   soundToggle.addEventListener('click', () => {
     soundEnabled = !soundEnabled;
-    isMuted = !soundEnabled;
     localStorage.setItem(SOUND_KEY, soundEnabled);
-    localStorage.setItem('pixelwho-muted', isMuted);
     updateSoundUI();
-    playSFX('click');
   });
-    updateSoundUI();
-
-  // Service Worker Registration for PWA
-  if ('serviceWorker' in navigator) {
-    const swCode = `
-      const CACHE_NAME = 'pixelwho-v1';
-      self.addEventListener('install', e => {
-        e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
-      });
-      self.addEventListener('fetch', e => {
-        e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
-      });
-    `;
-    const blob = new Blob([swCode], { type: 'application/javascript' });
-    const url = URL.createObjectURL(blob);
-    navigator.serviceWorker.register(url).catch(() => {});
-  }
-
-  // ── GLOBAL LEADERBOARD ─────────────────────────────────────
-  // We use a dedicated file in the same Gist for global scores
-  async function updateGlobalLeaderboard(score) {
-    if (!syncToken || !syncGistId) return;
-    try {
-      const r = await fetch('https://api.github.com/gists/' + syncGistId, {
-        headers: { 'Authorization': 'Bearer ' + syncToken }
-      });
-      if (!r.ok) return;
-      const data = await r.json();
-      let board = [];
-      if (data.files['leaderboard.json']) {
-        try { board = JSON.parse(data.files['leaderboard.json'].content); } catch(e) {}
-      }
-      
-      const entry = { name: 'Player', score: score, date: new Date().toISOString() };
-      board.push(entry);
-      board.sort((a, b) => b.score - a.score);
-      board = board.slice(0, 10); // Keep top 10
-
-      const body = { files: { 'leaderboard.json': { content: JSON.stringify(board, null, 2) } } };
-      await fetch('https://api.github.com/gists/' + syncGistId, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': 'Bearer ' + syncToken,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-      });
-    } catch(e) { console.error('Leaderboard update failed', e); }
-  }
+  
+  updateSoundUI();
 
   // Keyboard Shortcuts
-  window.addEventListener('keydown', e => {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-      if (e.key === 'Escape') e.target.blur();
-      return;
+  document.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === 's' && gameState !== 'playing' && !dailyMode) {
+      skipBtn.click();
+      e.preventDefault();
     }
-    const key = e.key.toLowerCase();
-    if (key === 't') { document.getElementById('theme-toggle').click(); e.preventDefault(); }
-    if (key === 's') { document.getElementById('sound-toggle').click(); e.preventDefault(); }
-    if (key === 'm') { openDrawer(); e.preventDefault(); }
-    if (key === '1') { document.querySelector('.gmode-btn[data-gmode="normal"]')?.click(); e.preventDefault(); }
-    if (key === '2') { document.querySelector('.gmode-btn[data-gmode="blur"]')?.click(); e.preventDefault(); }
-    if (key === '3') { document.querySelector('.gmode-btn[data-gmode="crop"]')?.click(); e.preventDefault(); }
-    if (key === '4') { document.querySelector('.gmode-btn[data-gmode="daily"]')?.click(); e.preventDefault(); }
-    if (key === 'n' && nextBtn.classList.contains('show')) { nextBtn.click(); e.preventDefault(); }
-    if (key === 'k' && skipBtn.classList.contains('show')) { skipBtn.click(); e.preventDefault(); }
-    if (key === 'h' && gameState === 'playing' && hintBtn.style.display !== 'none') { hintBtn.click(); e.preventDefault(); }
+    if (e.key.toLowerCase() === 'n' && gameState !== 'playing' && !dailyMode) {
+      nextBtn.click();
+      e.preventDefault();
+    }
+    if (e.key.toLowerCase() === 'h' && gameState === 'playing' && hintBtn.style.display !== 'none') {
+      hintBtn.click();
+      e.preventDefault();
+    }
+    if (e.key.toLowerCase() === 't' && e.ctrlKey) {
+      document.getElementById('theme-toggle').click();
+      e.preventDefault();
+    }
+    if (e.key.toLowerCase() === 'm' && e.ctrlKey) {
+      soundToggle.click();
+      e.preventDefault();
+    }
   });
 
   // Accessibility improvements
