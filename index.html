@@ -3405,7 +3405,8 @@
       if (!newImage) document.getElementById('edit-image').classList.add('error');
       return;
     }
-    const idx = (window.CHARACTERS || []).findIndex(c => c.name === editingChar.name);
+    const oldName = editingChar.name;
+    const idx = (window.CHARACTERS || []).findIndex(c => c.name === oldName);
     if (idx !== -1) {
       const updated = { name: newName, image: newImage };
       if (newSeries) updated.series = newSeries;
@@ -3415,7 +3416,7 @@
       window.CHARACTERS[idx] = updated;
       editingChar = updated;
       const persisted = getPersistedChars();
-      const pi = persisted.findIndex(c => c.name === editingChar.name || c.name === newName);
+      const pi = persisted.findIndex(c => c.name === oldName);
       if (pi !== -1) { persisted[pi] = updated; savePersistedChars(persisted); updateSavedBadge(); }
       buildSeriesFilter();
       updateModCharCount();
