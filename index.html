@@ -2229,8 +2229,8 @@
     });
   });
 
-  const charImg      = document.getElementById('char-img');
-  const loadCover    = document.getElementById('loading-cover');
+  let charImg      = document.getElementById('char-img');
+  let loadCover    = document.getElementById('loading-cover');
   const resOverlay   = document.getElementById('result-overlay');
   const resIcon      = document.getElementById('result-icon');
   const resName      = document.getElementById('result-name');
@@ -4070,6 +4070,29 @@
       buildSeriesFilter(); updateModCharCount(); renderEditList(); renderNoQuote(); renderOpedEntryList();
       opedPool = [...window.OPEDS].sort(() => Math.random() - 0.5);
       updateSyncCharCount();
+      
+      // Safety: Restore game card if it was replaced by error message
+      const card = document.getElementById('char-card');
+      if (card && card.innerHTML.includes('No characters found')) {
+          card.innerHTML = `
+            <img id="char-img" src="" alt="Guess this character">
+            <div class="loading-cover" id="loading-cover"><div class="spinner"></div></div>
+            <div class="result-overlay" id="result-overlay">
+              <div class="result-icon" id="result-icon"></div>
+              <div class="result-name" id="result-name"></div>
+            </div>
+            <button id="fs-expand-btn" onclick="openLightbox()" title="View Fullscreen">⤢</button>
+          `;
+          // Re-bind global elements
+          window.charImg = document.getElementById('char-img');
+          window.loadCover = document.getElementById('loading-cover');
+          // Re-assign local references used in functions
+          if (typeof charImg !== 'undefined') charImg = window.charImg;
+          if (typeof loadCover !== 'undefined') loadCover = window.loadCover;
+      }
+      
+      resetPool();
+      loadNext();
       showSyncStatus(`✅ Pulled ${chars.length} chars, ${opeds.length} OP/EDs.`, 'ok');
     } catch(e) {
       showSyncStatus('❌ Pull failed: ' + e.message, 'err', 5000);
