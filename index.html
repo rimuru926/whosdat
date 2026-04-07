@@ -3912,6 +3912,8 @@
       try { chars = JSON.parse(data.files['characters.json'].content); } catch(e) {}
     } else if (data.files[SYNC_FILENAME]) {
       try { chars = JSON.parse(data.files[SYNC_FILENAME].content); } catch(e) {}
+    } else if (data.files['character.js']) { // Fallback for old filename
+      try { chars = JSON.parse(data.files['character.js'].content); } catch(e) {}
     }
     
     let opeds = [];
@@ -3997,8 +3999,20 @@
         }
       });
 
-      if (cAdded) { buildSeriesFilter(); updateModCharCount(); renderEditList(); renderNoQuote(); }
-      if (oAdded) { saveOpeds(); renderOpedEntryList(); opedPool = [...window.OPEDS].sort(() => Math.random() - 0.5); }
+      if (cAdded) { 
+        buildSeriesFilter(); 
+        updateModCharCount(); 
+        renderEditList(); 
+        renderNoQuote(); 
+        // Refresh the game pool so the new characters show up immediately
+        if (typeof resetPool === 'function') resetPool();
+        if (typeof loadNext === 'function') loadNext();
+      }
+      if (oAdded) { 
+        saveOpeds(); 
+        renderOpedEntryList(); 
+        opedPool = [...window.OPEDS].sort(() => Math.random() - 0.5); 
+      }
       
       syncSave();
       setSyncConnectedUI(true);
