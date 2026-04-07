@@ -3873,6 +3873,12 @@
           }
           if (ytPendingPlay) { ytPendingPlay(); ytPendingPlay = null; }
         },
+        onStateChange: (e) => {
+          // YT.PlayerState.PLAYING = 1
+          if (e.data === 1) {
+            startOpedVisuals();
+          }
+        },
         onError: (e) => {
           document.getElementById('oped-status-text').textContent = 'Video unavailable — try another';
           document.getElementById('oped-status-text').classList.remove('playing');
@@ -3904,6 +3910,34 @@
     });
   });
 
+  function startOpedVisuals() {
+    const statusEl = document.getElementById('oped-status-text');
+    statusEl.textContent = 'Playing…';
+    statusEl.classList.add('playing');
+    document.getElementById('oped-bars').classList.add('playing');
+    
+    const pb = document.getElementById('oped-progress-bar');
+    pb.style.transition = 'none'; 
+    pb.style.width = '0%';
+    
+    // Use a tiny timeout to ensure the transition reset is processed by the browser
+    setTimeout(() => {
+      pb.style.transition = 'width ' + opedDuration + 's linear';
+      pb.style.width = '100%';
+    }, 50);
+
+    // Set the stop timer only AFTER playback has actually started
+    clearTimeout(opedClipTimer);
+    opedClipTimer = setTimeout(() => {
+      try { ytPlayer.stopVideo(); } catch(e) {}
+      stopOpedBars();
+      statusEl.textContent = 'Clip ended — make a guess!';
+      statusEl.classList.remove('playing');
+      document.getElementById('oped-replay-btn').disabled = (opedState === 'done');
+      document.getElementById('oped-replay-btn').textContent = '↺ Replay Clip';
+    }, (opedDuration * 1000) + 100); // Slight padding to ensure full duration
+  }
+
   function opedPlayClip() {
     if (!opedCurrent) return;
     clearTimeout(opedClipTimer);
@@ -3911,8 +3945,16 @@
 
     const doPlay = () => {
       try {
+        // Reset visuals while buffering
+        const statusEl = document.getElementById('oped-status-text');
+        statusEl.textContent = 'Buffering…';
+        document.getElementById('oped-progress-bar').style.transition = 'none';
+        document.getElementById('oped-progress-bar').style.width = '0%';
+        document.getElementById('oped-replay-btn').disabled = true;
+        document.getElementById('oped-replay-btn').textContent = '⏳ Buffering…';
+
         let safeDur = ytPlayer.getDuration();
-        if (!safeDur || safeDur < 10) safeDur = 90; // Fallback if YouTube hasn't loaded metadata
+        if (!safeDur || safeDur < 10) safeDur = 90; 
         
         const maxStart = Math.max(5, safeDur - opedDuration - 10);
         opedStart = Math.floor(Math.random() * maxStart) + 5;
@@ -3920,31 +3962,8 @@
         ytPlayer.loadVideoById({
           videoId: opedCurrent.youtubeId,
           startSeconds: opedStart,
-          endSeconds: opedStart + opedDuration
+          endSeconds: opedStart + opedDuration + 1 // Add 1s extra to the load range to prevent premature cut-off
         });
-        document.getElementById('oped-bars').classList.add('playing');
-        const statusEl = document.getElementById('oped-status-text');
-        statusEl.textContent = 'Playing…';
-        statusEl.classList.add('playing');
-        
-        const pb = document.getElementById('oped-progress-bar');
-        pb.style.transition = 'none'; pb.style.width = '0%';
-        requestAnimationFrame(() => {
-          pb.style.transition = 'width ' + opedDuration + 's linear';
-          pb.style.width = '100%';
-        });
-        
-        document.getElementById('oped-replay-btn').disabled = true;
-        document.getElementById('oped-replay-btn').textContent = '▶ Playing…';
-        
-        opedClipTimer = setTimeout(() => {
-          try { ytPlayer.stopVideo(); } catch(e) {}
-          stopOpedBars();
-          statusEl.textContent = 'Clip ended — make a guess!';
-          statusEl.classList.remove('playing');
-          document.getElementById('oped-replay-btn').disabled = (opedState === 'done');
-          document.getElementById('oped-replay-btn').textContent = '↺ Replay Clip';
-        }, (opedDuration + 0.6) * 1000);
       } catch(e) {}
     };
 
