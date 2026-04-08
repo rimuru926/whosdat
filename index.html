@@ -1865,6 +1865,15 @@
         </div>
 
         <div class="mod-field">
+          <div class="mod-label">End Time (seconds) <span class="opt">(optional)</span></div>
+          <input class="mod-input" id="oped-mod-endtime" type="number" min="0" step="0.1"
+            placeholder="e.g. 90 (leave blank for full video)" autocorrect="off">
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">
+            Set when the clip should stop playing (to trim credits or silence)
+          </div>
+        </div>
+
+        <div class="mod-field">
           <div class="mod-label">YouTube Video ID <span class="req">REQUIRED</span></div>
           <div style="display:flex;gap:8px;align-items:stretch">
             <input class="mod-input" id="oped-mod-ytid" type="text"
@@ -3940,6 +3949,7 @@
 
     // Set the stop timer only AFTER playback has actually started
     clearTimeout(opedClipTimer);
+    const clipDuration = getOpedClipDuration();
     opedClipTimer = setTimeout(() => {
       try { ytPlayer.stopVideo(); } catch(e) {}
       stopOpedBars();
@@ -3947,7 +3957,18 @@
       statusEl.classList.remove('playing');
       document.getElementById('oped-replay-btn').disabled = (opedState === 'done');
       document.getElementById('oped-replay-btn').textContent = '↺ Replay Clip';
-    }, (opedDuration * 1000) + 100); // Slight padding to ensure full duration
+    }, (clipDuration * 1000) + 100); // Slight padding to ensure full duration
+  }
+
+  function getOpedClipDuration() {
+    if (!opedCurrent) return opedDuration;
+    // If a custom end time is set, use it
+    if (opedCurrent.endTime && opedStart) {
+      const customDur = opedCurrent.endTime - opedStart;
+      return Math.max(customDur, 5); // Minimum 5 seconds
+    }
+    // Default to 90 seconds (standard anime OP/ED length)
+    return Math.min(90, opedDuration);
   }
 
   function opedPlayClip() {
@@ -4193,7 +4214,7 @@
       item.className = 'oped-entry-item';
       item.innerHTML = `<div class="oped-entry-type">${entry.type||'OP'}</div>
         <div class="oped-entry-info">
-          <div class="oped-entry-title">${entry.title}</div>
+          <div class="oped-entry-title">${entry.title}${entry.song ? ' — ' + entry.song : ''}</div>
           <div class="oped-entry-id">${entry.youtubeId}</div>
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0">
@@ -4205,6 +4226,7 @@
         document.getElementById('oped-mod-title').value = entry.title;
         document.getElementById('oped-mod-type').value = entry.type || 'OP';
         document.getElementById('oped-mod-song').value = entry.song || '';
+        document.getElementById('oped-mod-endtime').value = entry.endTime || '';
         document.getElementById('oped-mod-ytid').value = entry.youtubeId;
         document.getElementById('oped-mod-add-btn').textContent = '💾 Save Changes';
         document.getElementById('oped-mod-add-btn').dataset.editing = 'true';
@@ -4230,6 +4252,7 @@
     const titleEl    = document.getElementById('oped-mod-title');
     const typeEl     = document.getElementById('oped-mod-type');
     const songEl     = document.getElementById('oped-mod-song');
+    const endtimeEl  = document.getElementById('oped-mod-endtime');
     const ytIdEl     = document.getElementById('oped-mod-ytid');
     const errEl      = document.getElementById('oped-mod-err');
     errEl.textContent = '';
@@ -4237,6 +4260,7 @@
     const title = titleEl.value.trim();
     const type  = typeEl.value;
     const song  = songEl.value.trim();
+    const endtime = endtimeEl.value ? parseFloat(endtimeEl.value) : null;
     const _raw  = ytIdEl.value.trim();
     const _ytMatch = _raw.match(/(?:v=|youtu\.be\/|embed\/|shorts\/|watch\?v=)([A-Za-z0-9_-]{11})/);
     const ytId  = _ytMatch ? _ytMatch[1] : _raw;
@@ -4250,12 +4274,13 @@
     if (isEditing) {
       OPEDS[editingOpedIdx] = { title, type, youtubeId: ytId };
       if (song) OPEDS[editingOpedIdx].song = song;
+      if (endtime !== null) OPEDS[editingOpedIdx].endTime = endtime;
       saveOpeds();
       renderOpedEntryList();
       renderSeriesLibrary();
       syncAutoSync();
       
-      titleEl.value = ''; songEl.value = ''; ytIdEl.value = '';
+      titleEl.value = ''; songEl.value = ''; endtimeEl.value = ''; ytIdEl.value = '';
       errEl.textContent = '';
       errEl.style.color = 'var(--correct)';
       errEl.textContent = '✅ Updated "' + title + '"!';
@@ -4266,13 +4291,14 @@
     } else {
       const entry = { title, type, youtubeId: ytId };
       if (song) entry.song = song;
+      if (endtime !== null) entry.endTime = endtime;
       OPEDS.push(entry);
       saveOpeds();
       renderOpedEntryList();
       renderSeriesLibrary();
       syncAutoSync();
       
-      titleEl.value = ''; songEl.value = ''; ytIdEl.value = '';
+      titleEl.value = ''; songEl.value = ''; endtimeEl.value = ''; ytIdEl.value = '';
       errEl.textContent = '';
       errEl.style.color = 'var(--correct)';
       errEl.textContent = '✅ Added "' + title + '"!';
