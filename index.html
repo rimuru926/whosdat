@@ -2401,7 +2401,7 @@
     const hits=filteredChars().filter(c=>c.name.toLowerCase().includes(q)).slice(0,6);
     if(!hits.length){closeAC();return;}
     acIndex=-1;
-    acList.innerHTML=hits.map(c=>{ const lo=c.name.toLowerCase(),i=lo.indexOf(q); return `<div class="ac-item" data-name="${c.name}">${c.name.slice(0,i)}<em>${c.name.slice(i,i+q.length)}</em>${c.name.slice(i+q.length)}</div>`; }).join('');
+    acList.innerHTML=hits.map(c=>{ const lo=c.name.toLowerCase(),i=lo.indexOf(q); const series=c.series?` <span style="color:var(--muted);font-size:0.8rem;margin-left:6px;">(${c.series})</span>`:''; return `<div class="ac-item" data-name="${c.name}" style="display:flex;align-items:center;justify-content:space-between;">${c.name.slice(0,i)}<em>${c.name.slice(i,i+q.length)}</em>${c.name.slice(i+q.length)}${series}</div>`; }).join('');
     acList.classList.add('open');
   });
   gInput.addEventListener('keydown',e=>{
