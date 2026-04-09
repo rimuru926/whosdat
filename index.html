@@ -2071,16 +2071,20 @@
   document.querySelectorAll('.drawer-item').forEach(item => {
     item.addEventListener('click', () => {
       const t = item.dataset.tab;
+      if (!t) return; // Skip items without a data-tab (like the Discord link)
+      
       document.querySelectorAll('.drawer-item').forEach(i => i.classList.toggle('active', i.dataset.tab === t));
       document.querySelectorAll('.section').forEach(s => s.classList.toggle('active', s.id === t + '-section'));
       document.getElementById('streak-badge').style.display = t === 'game' ? '' : 'none';
       document.getElementById('series-filter').style.display = (t === 'oped') ? 'none' : '';
       activeLabel.textContent = SECTION_NAMES[t] || t;
+      
       if (t === 'tierlist') { renderTierList(); renderTLSlots(); }
       if (t === 'quiz') { if (!quizReady) { quizReady = true; initQuiz(); } }
       if (t === 'stats') { renderStats(); }
       if (t === 'mod') initModPanel();
       if (t === 'oped') { if (!opedReady) { opedReady = true; initOpedGame(); } }
+      
       closeDrawer();
     });
   });
