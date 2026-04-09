@@ -264,10 +264,16 @@
     @keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-5px);} 40%{transform:translateX(5px);} 60%{transform:translateX(-3px);} 80%{transform:translateX(3px);} }
     #autocomplete { position:absolute; top:calc(100% + 5px); left:0; right:0; background:var(--surface2); border:1px solid var(--border); border-radius:12px; overflow:hidden; display:none; z-index:50; box-shadow:0 10px 36px rgba(0,0,0,0.45); }
     #autocomplete.open { display:block; }
-    .ac-item { padding:12px 18px; cursor:pointer; font-size:0.93rem; font-weight:500; border-bottom:1px solid var(--border); transition:background 0.12s; }
-    .ac-item:last-child { border-bottom:none; }
-    .ac-item:hover,.ac-item.hi { background:rgba(255,137,6,0.12); color:var(--accent); }
-    .ac-item em { font-style:normal; color:var(--accent); }
+    .ac-item {
+      padding: 12px 18px; cursor: pointer; font-size: 0.93rem; font-weight: 500;
+      border-bottom: 1px solid var(--border); transition: background 0.12s;
+      display: flex; align-items: center; gap: 12px; justify-content: space-between;
+    }
+    .ac-item:last-child { border-bottom: none; }
+    .ac-item:hover, .ac-item.hi { background: rgba(255,137,6,0.12); color: var(--accent); }
+    .ac-item em { font-style: normal; color: var(--accent); }
+    .ac-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ac-series { flex-shrink: 0; font-size: 0.75rem; color: var(--muted); opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45%; }
     #wrong-tags { width:100%; display:flex; flex-wrap:wrap; gap:7px; }
     .wrong-tag { background:rgba(242,95,76,0.12); border:1px solid rgba(242,95,76,0.28); color:#f28a80; border-radius:100px; padding:4px 13px; font-size:0.78rem; font-weight:600; animation:popIn 0.18s ease; }
     @keyframes popIn { from{opacity:0;transform:scale(0.85);} to{opacity:1;transform:scale(1);} }
@@ -2437,7 +2443,12 @@
     const hits=filteredChars().filter(c=>c.name.toLowerCase().includes(q)).slice(0,6);
     if(!hits.length){closeAC();return;}
     acIndex=-1;
-    acList.innerHTML=hits.map(c=>{ const lo=c.name.toLowerCase(),i=lo.indexOf(q); const series=c.series?` <span style="color:var(--muted);font-size:0.8rem;margin-left:6px;">(${c.series})</span>`:''; return `<div class="ac-item" data-name="${c.name}" style="display:flex;align-items:center;justify-content:space-between;">${c.name.slice(0,i)}<em>${c.name.slice(i,i+q.length)}</em>${c.name.slice(i+q.length)}${series}</div>`; }).join('');
+    acList.innerHTML = hits.map(c => {
+      const lo = c.name.toLowerCase(), i = lo.indexOf(q);
+      const highlightedName = `${c.name.slice(0, i)}<em>${c.name.slice(i, i + q.length)}</em>${c.name.slice(i + q.length)}`;
+      const seriesSpan = c.series ? `<span class="ac-series">(${c.series})</span>` : '';
+      return `<div class="ac-item" data-name="${c.name}"><span class="ac-name">${highlightedName}</span>${seriesSpan}</div>`;
+    }).join('');
     acList.classList.add('open');
   });
   gInput.addEventListener('keydown',e=>{
