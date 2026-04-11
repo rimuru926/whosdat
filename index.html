@@ -6,26 +6,7 @@
   <meta name="theme-color" content="#0f0e17">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>PixelWho - Character Guessing Game & Anime OP/ED Quiz</title>
-  <meta name="description" content="Test your knowledge with PixelWho! A fun character guessing game and anime opening/ending quiz. Track your streaks and compete with others.">
-  <meta name="keywords" content="PixelWho, anime quiz, character guessing game, anime OP/ED, anime music quiz, gacha system">
-  <meta name="author" content="rimuru926">
-  
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://rimuru926.github.io/pixelwho/">
-  <meta property="og:title" content="PixelWho - Character Guessing Game & Anime OP/ED Quiz">
-  <meta property="og:description" content="Test your knowledge with PixelWho! A fun character guessing game and anime opening/ending quiz.">
-  <meta property="og:image" content="https://rimuru926.github.io/pixelwho/og-image.jpg">
-
-  <!-- Twitter -->
-  <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:url" content="https://rimuru926.github.io/pixelwho/">
-  <meta property="twitter:title" content="PixelWho - Character Guessing Game & Anime OP/ED Quiz">
-  <meta property="twitter:description" content="Test your knowledge with PixelWho! A fun character guessing game and anime opening/ending quiz.">
-  <meta property="twitter:image" content="https://rimuru926.github.io/pixelwho/og-image.jpg">
-
-  <link rel="canonical" href="https://rimuru926.github.io/pixelwho/">
+  <title>PixelWho</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -267,7 +248,8 @@
     .result-overlay.correct { background:rgba(20,60,43,0.92); opacity:1; }
     .result-overlay.failed  { background:rgba(10,10,20,0.90); opacity:1; }
     .result-icon { font-size:3rem; margin-bottom:10px; }
-    .result-name { font-family:'Bebas Neue',sans-serif; font-size:1.7rem; letter-spacing:0.08em; color:#fff; text-align:center; padding:0 16px; }
+    .result-name { font-family:'Bebas Neue',sans-serif; font-size:1.7rem; letter-spacing:0.08em; color:#fff; text-align:center; padding:0 16px; word-break: break-word; }
+    .result-series { font-size: 0.9rem; color: rgba(255,255,255,0.8); text-align: center; padding: 4px 16px 0; font-weight: 500; }
     .result-overlay.correct .result-icon::after { content:'✓'; color:var(--correct); }
     .result-overlay.failed  .result-icon::after { content:'✗'; color:var(--wrong); }
     .guess-dots { display:flex; gap:9px; align-items:center; }
@@ -292,7 +274,7 @@
     .ac-item:hover, .ac-item.hi { background: rgba(255,137,6,0.12); color: var(--accent); }
     .ac-item em { font-style: normal; color: var(--accent); }
     .ac-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ac-series { flex-shrink: 0; font-size: 0.75rem; color: var(--muted); opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45%; }
+    .ac-series { flex-shrink: 0; font-size: 0.75rem; color: var(--muted); opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%; }
     #wrong-tags { width:100%; display:flex; flex-wrap:wrap; gap:7px; }
     .wrong-tag { background:rgba(242,95,76,0.12); border:1px solid rgba(242,95,76,0.28); color:#f28a80; border-radius:100px; padding:4px 13px; font-size:0.78rem; font-weight:600; animation:popIn 0.18s ease; }
     @keyframes popIn { from{opacity:0;transform:scale(0.85);} to{opacity:1;transform:scale(1);} }
@@ -1027,7 +1009,10 @@
       outline: none; transition: border-color 0.2s;
     }
     .edit-search:focus { border-color: var(--accent); }
-    .edit-char-list { display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow-y: auto; }
+    .edit-char-list { display: flex; flex-direction: column; gap: 6px; max-height: 320px; overflow-y: auto; padding-right: 4px; }
+    .edit-char-list::-webkit-scrollbar { width: 6px; }
+    .edit-char-list::-webkit-scrollbar-track { background: var(--surface); }
+    .edit-char-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
     .edit-char-item {
       display: flex; align-items: center; gap: 10px;
       background: var(--surface); border: 1.5px solid var(--border);
@@ -1037,10 +1022,10 @@
     .edit-char-item:hover { border-color: var(--accent); }
     .edit-char-thumb {
       width: 32px; height: 42px; border-radius: 5px;
-      object-fit: cover; flex-shrink: 0; background: var(--surface2);
+      object-fit: cover; flex-shrink: 0;
     }
-    .edit-char-name { font-size: 0.9rem; font-weight: 600; flex: 1; }
-    .edit-char-series { font-size: 0.72rem; color: var(--muted); }
+    .edit-char-name { font-size: 0.9rem; font-weight: 600; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .edit-char-series { font-size: 0.72rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .edit-form-wrap {
       width: 100%; background: var(--surface); border: 1.5px solid var(--accent);
       border-radius: 14px; padding: 16px; display: flex; flex-direction: column;
@@ -1438,6 +1423,7 @@
       <div class="result-overlay" id="result-overlay">
         <div class="result-icon" id="result-icon"></div>
         <div class="result-name" id="result-name"></div>
+        <div class="result-series" id="result-series"></div>
       </div>
       <button id="fs-expand-btn" onclick="openLightbox(document.getElementById('char-img').src, null)" title="View full image">⤢</button>
     </div>
@@ -2267,6 +2253,7 @@
   const resOverlay   = document.getElementById('result-overlay');
   const resIcon      = document.getElementById('result-icon');
   const resName      = document.getElementById('result-name');
+  const resSeries    = document.getElementById('result-series');
   const gInput       = document.getElementById('guess-input');
   const acList       = document.getElementById('autocomplete');
   const wrongTags    = document.getElementById('wrong-tags');
@@ -2295,7 +2282,7 @@
     dots[5].style.display = cropMode ? '' : 'none';
     dots.forEach(d=>d.classList.remove('used'));
     wrongTags.innerHTML=''; ansReveal.className=''; ansReveal.innerHTML='';
-    resOverlay.className='result-overlay'; resIcon.textContent=''; resName.textContent='';
+    resOverlay.className='result-overlay'; resIcon.textContent=''; resName.textContent=''; resSeries.textContent='';
     gInput.value=''; gInput.className=''; gInput.disabled=false;
     closeAC(); nextBtn.className='btn'; skipBtn.className='btn';
     shareRow.className=''; hintBtn.style.display='none';
@@ -2437,7 +2424,7 @@
     gameState='correct'; streak++;
     charImg.style.filter=''; charImg.style.clipPath=''; charImg.classList.remove('crop-mode');
     setStreak(streak); gInput.disabled=true; gInput.classList.add('flash-correct');
-    resName.textContent=currentChar.name; resOverlay.className='result-overlay correct';
+    resName.textContent=currentChar.name; resSeries.textContent=currentChar.series || ''; resOverlay.className='result-overlay correct';
     hintBtn.style.display='none';
     const maxGuesses = cropMode ? 6 : 5;
     if(!dailyMode){ nextBtn.classList.add('show'); skipBtn.classList.add('hide'); }
@@ -2462,7 +2449,7 @@
     const maxGuesses = cropMode ? 6 : 5;
     gameState='failed'; streak=0; setStreak(0); gInput.disabled=true;
     charImg.style.filter=''; charImg.style.clipPath=''; charImg.classList.remove('crop-mode');
-    resName.textContent=currentChar.name; resOverlay.className='result-overlay failed';
+    resName.textContent=currentChar.name; resSeries.textContent=currentChar.series || ''; resOverlay.className='result-overlay failed';
     ansReveal.innerHTML='The answer was <strong>'+currentChar.name+'</strong>';
     ansReveal.className='show';
     hintBtn.style.display='none';
