@@ -249,7 +249,7 @@
     .result-overlay.failed  { background:rgba(10,10,20,0.90); opacity:1; }
     .result-icon { font-size:3rem; margin-bottom:10px; }
     .result-name { font-family:'Bebas Neue',sans-serif; font-size:1.7rem; letter-spacing:0.08em; color:#fff; text-align:center; padding:0 16px; word-break: break-word; }
-    .result-series { font-size: 0.9rem; color: rgba(255,255,255,0.8); text-align: center; padding: 4px 16px 0; font-weight: 500; }
+    .result-series { font-size: 0.85rem; color: rgba(255,255,255,0.8); text-align: center; padding: 6px 20px 0; font-weight: 500; word-break: break-word; line-height: 1.3; max-width: 100%; }
     .result-overlay.correct .result-icon::after { content:'✓'; color:var(--correct); }
     .result-overlay.failed  .result-icon::after { content:'✗'; color:var(--wrong); }
     .guess-dots { display:flex; gap:9px; align-items:center; }
@@ -268,13 +268,13 @@
     .ac-item {
       padding: 12px 18px; cursor: pointer; font-size: 0.93rem; font-weight: 500;
       border-bottom: 1px solid var(--border); transition: background 0.12s;
-      display: flex; align-items: center; gap: 12px; justify-content: space-between;
+      display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
     }
     .ac-item:last-child { border-bottom: none; }
     .ac-item:hover, .ac-item.hi { background: rgba(255,137,6,0.12); color: var(--accent); }
     .ac-item em { font-style: normal; color: var(--accent); }
-    .ac-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ac-series { flex-shrink: 0; font-size: 0.75rem; color: var(--muted); opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%; }
+    .ac-name { width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ac-series { width: 100%; font-size: 0.75rem; color: var(--muted); opacity: 0.8; word-break: break-word; line-height: 1.2; }
     #wrong-tags { width:100%; display:flex; flex-wrap:wrap; gap:7px; }
     .wrong-tag { background:rgba(242,95,76,0.12); border:1px solid rgba(242,95,76,0.28); color:#f28a80; border-radius:100px; padding:4px 13px; font-size:0.78rem; font-weight:600; animation:popIn 0.18s ease; }
     @keyframes popIn { from{opacity:0;transform:scale(0.85);} to{opacity:1;transform:scale(1);} }
@@ -2469,7 +2469,7 @@
     acList.innerHTML = hits.map(c => {
       const lo = c.name.toLowerCase(), i = lo.indexOf(q);
       const highlightedName = `${c.name.slice(0, i)}<em>${c.name.slice(i, i + q.length)}</em>${c.name.slice(i + q.length)}`;
-      const seriesSpan = c.series ? `<span class="ac-series">(${c.series})</span>` : '';
+      const seriesSpan = c.series ? `<span class="ac-series">${c.series}</span>` : '';
       return `<div class="ac-item" data-name="${c.name}"><span class="ac-name">${highlightedName}</span>${seriesSpan}</div>`;
     }).join('');
     acList.classList.add('open');
