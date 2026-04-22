@@ -4705,7 +4705,7 @@
   const urlItemPaths = {}; 
   function isUrl(s) { return /^https?:\/\//i.test(s); }
   function isBase64(s) { return /^data:image\//i.test(s); }
-  function isImgurJpg(s) { return /^https?:\/\/i\.imgur\.com\/[^?#]+\.jpe?g(\?.*)?$/i.test(s); }
+  function isImgurJpg(s) { return /^https?:\/\/i\.imgur\.com\/[^?#]+\.jpeg(\?.*)?$/i.test(s); }
   // Anything that isn't a proper imgur JPG needs attention
   function needsConvert(s) { return !isImgurJpg(s); }
 
