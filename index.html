@@ -3244,7 +3244,7 @@
     pool=[...filteredChars()].sort(()=>Math.random()-0.5); 
     if(!pool.length) pool=[...(window.CHARACTERS||[])].sort(()=>Math.random()-0.5); 
     nextChar = null;
-  }}
+  }
 
   function clearGameUI() {
     guessesLeft = cropMode ? 6 : 5;
@@ -3286,9 +3286,6 @@
 
     clearGameUI();
     applyImageLoad();
-    gInput.focus();
-  }  // Preload the next character's image in the background so it's instant
-    if(pool.length) { const pre=new Image(); pre.src=pool[pool.length-1].image; }
     gInput.focus();
   }
 
@@ -4073,8 +4070,6 @@
   // Initialize Firebase (using compat mode for easier integration into existing script)
   (function initFirebase() {
     if (typeof firebase === 'undefined') {
-      console.error("Firebase SDK not loaded.")  (function initFirebase() {
-    if (typeof firebase === 'undefined') {
       console.error("Firebase SDK not loaded.");
       return;
     }
@@ -4091,13 +4086,22 @@
       console.error("Firebase initialization failed:", e);
       console.error("Error details:", e.message, e.code);
     }
-  })();ction loadStats() {
-    try { const s = localStorage.getItem(STATS_KEY); if (s) {
-      const st = JSON.parse(s);
-      if (!st.oped) st.oped = { played:0, correct:0, bestStreak:0 };
-      return st;
-    } } catch(e) {}
-    return { game: { played:0, correct:0, bestStreak:0 }, quiz: { played:0, correct:0, bestStreak:0 }, oped: { played:0, correct:0, bestStreak:0 } };
+  })();
+
+  function loadStats() {
+    try {
+      const s = localStorage.getItem(STATS_KEY);
+      if (s) {
+        const st = JSON.parse(s);
+        if (!st.oped) st.oped = { played: 0, correct: 0, bestStreak: 0 };
+        return st;
+      }
+    } catch (e) {}
+    return {
+      game: { played: 0, correct: 0, bestStreak: 0 },
+      quiz: { played: 0, correct: 0, bestStreak: 0 },
+      oped: { played: 0, correct: 0, bestStreak: 0 }
+    };
   }
   function saveStats(st) { try { localStorage.setItem(STATS_KEY, JSON.stringify(st)); } catch(e) {} }
 
@@ -6373,7 +6377,12 @@
       if (window._gameBooted) return;
       window._gameBooted = true;
       pixelLog("🎮 Booting game engine...");
-      if (loadCoverEl) loadCoverEl.style.display = 'none';
+      
+      // Safety: Hide loading screen regardless of errors
+      setTimeout(() => {
+        if (loadCoverEl) loadCoverEl.style.display = 'none';
+      }, 500);
+
       try {
         loadSeriesFilter();
         buildSeriesFilter();
@@ -6383,7 +6392,7 @@
         pixelLog("✅ Game ready!");
       } catch (e) {
         pixelLog(`❌ Boot Error: ${e.message}`);
-        console.error(e);
+        console.error("Boot error:", e);
       }
     }
     window.bootGame = bootGame;
