@@ -6340,23 +6340,31 @@
         fetch(`https://gist.githubusercontent.com/rimuru926/${effectiveGistId}/raw/opeds.json?t=${ts}`).then(r => r.ok ? r.json() : []).catch(() => [])
       ]).then(([chars, opeds]) => {
         setCachedGist(chars, opeds);
-        let added = 0;
+        let changed = 0;
         (chars||[]).forEach(c => {
-          if (c && c.name && c.image && !window.CHARACTERS.some(x => x.name === c.name)) {
-            window.CHARACTERS.push(c); added++;
+          if (!c || !c.name || !c.image) return;
+          const existing = window.CHARACTERS.find(x => x.name === c.name);
+          if (!existing) {
+            window.CHARACTERS.push(c); changed++;
+          } else if (JSON.stringify(existing) !== JSON.stringify(c)) {
+            Object.assign(existing, c); changed++;
           }
         });
         (opeds||[]).forEach(o => {
-          if (o && o.youtubeId && !window.OPEDS.some(x => x.youtubeId === o.youtubeId)) {
-            window.OPEDS.push(o); added++;
+          if (!o || !o.youtubeId) return;
+          const existing = window.OPEDS.find(x => x.youtubeId === o.youtubeId);
+          if (!existing) {
+            window.OPEDS.push(o); changed++;
+          } else if (JSON.stringify(existing) !== JSON.stringify(o)) {
+            Object.assign(existing, o); changed++;
           }
         });
-        if (added) {
+        if (changed) {
           buildSeriesFilter();
           const banner = document.getElementById('gist-update-banner');
           const msg = document.getElementById('gist-update-msg');
           if (banner) {
-            if (msg) msg.textContent = `${added} new item${added !== 1 ? 's' : ''} loaded from Gist`;
+            if (msg) msg.textContent = `Gist has updates — reload to see changes`;
             banner.style.display = 'flex';
           }
         }
