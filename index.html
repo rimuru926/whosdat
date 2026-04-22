@@ -2676,8 +2676,8 @@
     all.forEach(c => { if (c.series) countMap[c.series] = (countMap[c.series] || 0) + 1; });
     const series = Object.entries(countMap).sort((a, b) => b[1] - a[1]).map(([s]) => s);
     bar.style.display = '';
-    bar.innerHTML = '';
     const totalCount = all.length;
+    const fragment = document.createDocumentFragment();
 
     const searchWrap = document.getElementById('series-search-wrap');
     const searchInput = document.getElementById('series-search-input');
@@ -2685,12 +2685,16 @@
       searchWrap.style.display = '';
       if (!searchWrap._searchSetup) {
         searchWrap._searchSetup = true;
+        let searchTimeout;
         searchInput.addEventListener('input', () => {
-          const q = searchInput.value.trim().toLowerCase();
-          document.querySelectorAll('.series-pill').forEach(pill => {
-            if (!pill.dataset.key) { pill.style.display = ''; return; }
-            pill.style.display = !q || pill.dataset.key.toLowerCase().includes(q) ? '' : 'none';
-          });
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(() => {
+            const q = searchInput.value.trim().toLowerCase();
+            document.querySelectorAll('.series-pill').forEach(pill => {
+              if (!pill.dataset.key) { pill.style.display = ''; return; }
+              pill.style.display = !q || pill.dataset.key.toLowerCase().includes(q) ? '' : 'none';
+            });
+          }, 150);
         });
       }
     } else {
@@ -2712,8 +2716,8 @@
       pill.dataset.key = key || '';
       pill.textContent = label + ' (' + count + ')';
       pill.addEventListener('click', () => {
-        if (!key) {
-          activeSeriesSet.clear(); // All — reset everything
+        if (key === null) {
+          activeSeriesSet.clear();
         } else {
           if (activeSeriesSet.has(key)) activeSeriesSet.delete(key);
           else activeSeriesSet.add(key);
@@ -2722,7 +2726,7 @@
         buildSeriesFilter();
         if (!isSilent) applyFilter();
       });
-      bar.appendChild(pill);
+      fragment.appendChild(pill);
     });
 
     // Show a "Filtered: N" pill when series are selected
@@ -2731,8 +2735,10 @@
       const countPill = document.createElement('div');
       countPill.className = 'filter-count-pill';
       countPill.textContent = `↳ ${filtCount} character${filtCount !== 1 ? 's' : ''}`;
-      bar.appendChild(countPill);
+      fragment.appendChild(countPill);
     }
+    bar.innerHTML = '';
+    bar.appendChild(fragment);
   }
 
   function filteredChars() {
@@ -3183,22 +3189,33 @@
 
 
   function initGame() {
-    if (!window.CHARACTERS||!CHARACTERS.length) {
-      document.getElementById('char-card').innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);text-align:center;padding:24px;font-size:0.9rem;">No characters found.<br><br>Loading from Gist...</div>';
-      return;
+    if (!window.CHARACTERS || !window.CHARACTERS.length) {
+      document.getElementById('char-card').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);text-align:center;padding:24px;font-size:0.9rem;">No characters found.<br><br>Loading from Gist...</div>';
     }
-    // Restore last game mode
-    const savedMode = loadGameMode();
-    blurMode  = savedMode === 'blur';
-    cropMode  = savedMode === 'crop';
-    dailyMode = savedMode === 'daily';
-    document.querySelectorAll('.gmode-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.gmode === savedMode);
-    });
-    grantShieldIfNeeded();
-    resetPool(); loadNext();
+    try {
+      // Restore last game mode
+      const savedMode = loadGameMode();
+      blurMode = savedMode === 'blur';
+      cropMode = savedMode === 'crop';
+      dailyMode = savedMode === 'daily';
+      document.querySelectorAll('.gmode-btn').forEach(b => {
+        if (b && b.dataset) {
+          b.classList.toggle('active', b.dataset.gmode === savedMode);
+        }
+      });
+      grantShieldIfNeeded();
+      resetPool(); loadNext();
+    } catch (e) {
+      console.error("Failed to initialize game:", e);
+      resetPool(); loadNext();
+    }
   }
-  function resetPool(){ pool=[...filteredChars()].sort(()=>Math.random()-0.5); if(!pool.length) pool=[...(window.CHARACTERS||[])].sort(()=>Math.random()-0.5); }
+  let nextChar = null;
+  function resetPool(){ 
+    pool=[...filteredChars()].sort(()=>Math.random()-0.5); 
+    if(!pool.length) pool=[...(window.CHARACTERS||[])].sort(()=>Math.random()-0.5); 
+    nextChar = null;
+  }}
 
   function clearGameUI() {
     guessesLeft = cropMode ? 6 : 5;
@@ -3220,19 +3237,28 @@
     // Update shield visibility
     updateShieldUI();
   }
-
   function loadNext(){
     if(dailyMode){ loadDailyMode(); return; }
     if(!pool.length) resetPool();
-    // Prevent same character appearing back-to-back
-    if(pool.length > 1 && pool[pool.length-1] === currentChar) {
-      const swap = Math.floor(Math.random() * (pool.length - 1));
-      [pool[swap], pool[pool.length-1]] = [pool[pool.length-1], pool[swap]];
+    
+    currentChar = nextChar || pool.pop();
+    if(!pool.length) resetPool();
+    nextChar = pool.length ? pool.pop() : null;
+    
+    if(nextChar && nextChar === currentChar && pool.length > 0) {
+      const swap = Math.floor(Math.random() * pool.length);
+      [nextChar, pool[swap]] = [pool[swap], nextChar];
     }
-    currentChar=pool.pop();
+    
+    if (nextChar && nextChar.image) {
+      const preloadImg = new Image();
+      preloadImg.src = nextChar.image;
+    }
+
     clearGameUI();
     applyImageLoad();
-    // Preload the next character's image in the background so it's instant
+    gInput.focus();
+  }  // Preload the next character's image in the background so it's instant
     if(pool.length) { const pre=new Image(); pre.src=pool[pool.length-1].image; }
     gInput.focus();
   }
@@ -4018,6 +4044,8 @@
   // Initialize Firebase (using compat mode for easier integration into existing script)
   (function initFirebase() {
     if (typeof firebase === 'undefined') {
+      console.error("Firebase SDK not loaded.")  (function initFirebase() {
+    if (typeof firebase === 'undefined') {
       console.error("Firebase SDK not loaded.");
       return;
     }
@@ -4034,9 +4062,7 @@
       console.error("Firebase initialization failed:", e);
       console.error("Error details:", e.message, e.code);
     }
-  })();
-
-  function loadStats() {
+  })();ction loadStats() {
     try { const s = localStorage.getItem(STATS_KEY); if (s) {
       const st = JSON.parse(s);
       if (!st.oped) st.oped = { played:0, correct:0, bestStreak:0 };
@@ -4390,9 +4416,8 @@
     document.addEventListener('mouseup',   () => { isDown = false; tabs.style.cursor = ''; });
     document.addEventListener('mousemove', e => {
       if (!isDown) return;
-      e.preventDefault();
       tabs.scrollLeft = scrollLeft - (e.pageX - tabs.offsetLeft - startX);
-    });
+    }, { passive: true });
   })();
 
   document.querySelectorAll('.mod-tab-btn').forEach(btn => {
@@ -4766,27 +4791,26 @@
   async function runImageAudit() {
     loadAuditCache();
     const all = window.CHARACTERS || [];
+    const CONCURRENT_LIMIT = 5;
+    const toAudit = all.filter(c => imgAuditResults[c.name + '|' + c.image] === undefined);
+    
+    for (let i = 0; i < toAudit.length; i += CONCURRENT_LIMIT) {
+      const chunk = toAudit.slice(i, i + CONCURRENT_LIMIT);
+      await Promise.all(chunk.map(c => new Promise(resolve => {
+        const key = c.name + '|' + c.image;
+        if (isImgurJpg(c.image)) { imgAuditResults[key] = 'ok'; resolve(); return; }
+        if (isUrl(c.image))    { imgAuditResults[key] = 'url'; resolve(); return; }
+        if (isBase64(c.image)) { imgAuditResults[key] = 'base64'; resolve(); return; }
 
-    const checks = all.map(c => new Promise(resolve => {
-      const key = c.name + '|' + c.image;
-      if (imgAuditResults[key] !== undefined) { resolve(); return; } // already cached
-
-      if (isImgurJpg(c.image)) { imgAuditResults[key] = 'ok';     resolve(); return; } // ✅ proper imgur JPG
-      if (isUrl(c.image))    { imgAuditResults[key] = 'url';    resolve(); return; } // ⚠️ URL but not imgur JPG
-      if (isBase64(c.image)) { imgAuditResults[key] = 'base64'; resolve(); return; }
-
-      // Local path — test-load it to see if the file actually exists in the repo
-      const img = new Image();
-      const t = setTimeout(() => { imgAuditResults[key] = 'ok'; resolve(); }, 8000);
-      img.onload  = () => { clearTimeout(t); imgAuditResults[key] = 'ok';     resolve(); };
-      img.onerror = () => { clearTimeout(t); imgAuditResults[key] = 'broken'; resolve(); };
-      img.src = c.image + (c.image.includes('?') ? '&' : '?') + '_a=' + Date.now();
-    }));
-
-    await Promise.all(checks);
-    saveAuditCache();
-    updateUrlTabBadge();
-    // If the URLs tab is already open, refresh it with the new results
+        const img = new Image();
+        const t = setTimeout(() => { imgAuditResults[key] = 'ok'; resolve(); }, 5000);
+        img.onload  = () => { clearTimeout(t); imgAuditResults[key] = 'ok'; resolve(); };
+        img.onerror = () => { clearTimeout(t); imgAuditResults[key] = 'broken'; resolve(); };
+        img.src = c.image + (c.image.includes('?') ? '&' : '?') + '_a=' + Date.now();
+      })));
+      saveAuditCache();
+      updateUrlTabBadge();
+    }
     const convertPanel = document.getElementById('modtab-convert');
     if (convertPanel && convertPanel.classList.contains('active')) renderUrlConverter();
   }
@@ -5697,9 +5721,8 @@
     document.addEventListener('mouseup',   () => { isDown = false; bar.style.cursor = ''; });
     document.addEventListener('mousemove', e => {
       if (!isDown) return;
-      e.preventDefault();
       bar.scrollLeft = scrollLeft - (e.pageX - bar.offsetLeft - startX);
-    });
+    }, { passive: true });
   })();
   // ═══════════════════════════════════════════════════
   //  FULLSCREEN LIGHTBOX
@@ -6333,10 +6356,15 @@
     }
 
     async function fetchPublicGist(gistId) {
-      const r = await fetch(`https://api.github.com/gists/${gistId}`, {
-        headers: { 'Accept': 'application/vnd.github+json' }
-      });
+      const cacheKey = 'gist-etag-' + gistId;
+      const cachedEtag = localStorage.getItem(cacheKey);
+      const headers = { 'Accept': 'application/vnd.github+json' };
+      if (cachedEtag) headers['If-None-Match'] = cachedEtag;
+      const r = await fetch(`https://api.github.com/gists/${gistId}`, { headers });
+      if (r.status === 304) return null;
       if (!r.ok) throw new Error('Gist API error ' + r.status);
+      const newEtag = r.headers.get('ETag');
+      if (newEtag) localStorage.setItem(cacheKey, newEtag);
       const data = await r.json();
       let chars = [], opeds = [];
       try { if (data.files['characters.json']) chars = JSON.parse(data.files['characters.json'].content); } catch(e) {}
@@ -6346,59 +6374,47 @@
 
     const cached = getCachedGist();
     if (cached) {
-      // Instant boot from cache
       mergeData(cached.chars, cached.opeds);
       bootGame();
-      // Silently refresh via API (bypasses GitHub CDN cache)
-      fetchPublicGist(effectiveGistId).then(({ chars, opeds }) => {
+      fetchPublicGist(effectiveGistId).then(data => {
+        if (!data) return;
+        const { chars, opeds } = data;
         setCachedGist(chars, opeds);
         let changed = 0;
+        const charMap = new Map(window.CHARACTERS.map(c => [c.name, c]));
         (chars||[]).forEach(c => {
           if (!c || !c.name || !c.image) return;
-          const existing = window.CHARACTERS.find(x => x.name === c.name);
-          if (!existing) {
-            window.CHARACTERS.push(c); changed++;
-          } else if (JSON.stringify(existing) !== JSON.stringify(c)) {
-            Object.assign(existing, c); changed++;
-          }
+          const existing = charMap.get(c.name);
+          if (!existing) { window.CHARACTERS.push(c); changed++; }
+          else if (JSON.stringify(existing) !== JSON.stringify(c)) { Object.assign(existing, c); changed++; }
         });
+        const opedMap = new Map(window.OPEDS.map(o => [o.youtubeId, o]));
         (opeds||[]).forEach(o => {
           if (!o || !o.youtubeId) return;
-          const existing = window.OPEDS.find(x => x.youtubeId === o.youtubeId);
-          if (!existing) {
-            window.OPEDS.push(o); changed++;
-          } else if (JSON.stringify(existing) !== JSON.stringify(o)) {
-            Object.assign(existing, o); changed++;
-          }
+          const existing = opedMap.get(o.youtubeId);
+          if (!existing) { window.OPEDS.push(o); changed++; }
+          else if (JSON.stringify(existing) !== JSON.stringify(o)) { Object.assign(existing, o); changed++; }
         });
         if (changed) {
-          // Update the filter bar UI but don't trigger a game reset
           buildSeriesFilter(true); 
-          // Clear stale audit cache entries for updated characters then re-audit
           (chars||[]).forEach(c => {
             if (!c || !c.name) return;
-            Object.keys(imgAuditResults).forEach(k => {
-              if (k.startsWith(c.name + '|')) delete imgAuditResults[k];
-            });
+            Object.keys(imgAuditResults).forEach(k => { if (k.startsWith(c.name + '|')) delete imgAuditResults[k]; });
           });
           saveAuditCache();
           runImageAudit();
-          const banner = document.getElementById('gist-update-banner');
-          const msg = document.getElementById('gist-update-msg');
-          if (banner) {
-            if (msg) msg.textContent = `Gist has updates — reload to see changes`;
-            banner.style.display = 'flex';
-          }
         }
-      }).catch(() => {});
+      }).catch(e => console.warn('Gist background refresh failed:', e));
       return;
     }
 
-    // No cache — fetch fresh via API then boot
-    fetchPublicGist(effectiveGistId).then(({ chars, opeds }) => {
-      setCachedGist(chars, opeds);
-      mergeData(chars, opeds);
-    }).catch(() => {}).finally(() => { bootGame(); });
+    fetchPublicGist(effectiveGistId).then(data => {
+      if (data) {
+        setCachedGist(data.chars, data.opeds);
+        mergeData(data.chars, data.opeds);
+      }
+      bootGame();
+    }).catch(() => bootGame());
   })();
 
   // ═══════════════════════════════════════════════════
@@ -6456,35 +6472,47 @@
   if ('serviceWorker' in navigator) {
     // Inline the SW as a Blob so there's no separate file needed
     const swCode = `
-const CACHE = 'pixelwho-shell-v1';
-const SHELL = [self.location.href.split('?')[0]]; // cache the page URL itself
+const CACHE_NAME = 'pixelwho-v5';
+const SHELL = [self.location.href.split('?')[0]];
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(SHELL)).catch(() => {})
-  );
+  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(SHELL)));
   self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(keys =>
-    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
   ));
   self.clients.claim();
 });
 
 self.addEventListener('fetch', e => {
-  // Only cache same-origin navigation requests (the page shell)
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  // Don't intercept external APIs (Gist, Firebase, YouTube, etc.)
-  if (url.origin !== self.location.origin) return;
+
+  if (req.destination === 'image' || url.pathname.match(/\\.(jpg|jpeg|png|webp|gif|svg)$/i)) {
+    e.respondWith(
+      caches.match(req).then(cached => {
+        if (cached) return cached;
+        return fetch(req).then(res => {
+          if (res.ok) {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then(c => c.put(req, clone));
+          }
+          return res;
+        });
+      })
+    );
+    return;
+  }
+
   e.respondWith(
     fetch(req).then(res => {
-      if (res.ok) {
+      if (res.ok && url.origin === self.location.origin) {
         const clone = res.clone();
-        caches.open(CACHE).then(c => c.put(req, clone));
+        caches.open(CACHE_NAME).then(c => c.put(req, clone));
       }
       return res;
     }).catch(() => caches.match(req))
