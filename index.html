@@ -6321,14 +6321,6 @@
       try { localStorage.setItem(GIST_CACHE_KEY, JSON.stringify({ ts: Date.now(), chars, opeds })); } catch(e) {}
     }
 
-    syncLoad();
-    const effectiveGistId = PUBLIC_GIST_ID || syncGistId;
-    if (!effectiveGistId) {
-      if (loadCoverEl) loadCoverEl.style.display = 'none';
-      loadSeriesFilter(); buildSeriesFilter(); initGame();
-      return;
-    }
-
     function mergeData(gistChars, gistOpeds) {
       if (Array.isArray(gistChars)) {
         gistChars.forEach(c => {
@@ -6370,6 +6362,13 @@
       try { if (data.files['characters.json']) chars = JSON.parse(data.files['characters.json'].content); } catch(e) {}
       try { if (data.files['opeds.json'])      opeds = JSON.parse(data.files['opeds.json'].content);      } catch(e) {}
       return { chars, opeds };
+    }
+
+    syncLoad();
+    const effectiveGistId = PUBLIC_GIST_ID || syncGistId;
+    if (!effectiveGistId) {
+      bootGame();
+      return;
     }
 
     const cached = getCachedGist();
