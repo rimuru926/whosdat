@@ -6328,17 +6328,25 @@
       runImageAudit();
     }
 
+    async function fetchPublicGist(gistId) {
+      const r = await fetch(`https://api.github.com/gists/${gistId}`, {
+        headers: { 'Accept': 'application/vnd.github+json' }
+      });
+      if (!r.ok) throw new Error('Gist API error ' + r.status);
+      const data = await r.json();
+      let chars = [], opeds = [];
+      try { if (data.files['characters.json']) chars = JSON.parse(data.files['characters.json'].content); } catch(e) {}
+      try { if (data.files['opeds.json'])      opeds = JSON.parse(data.files['opeds.json'].content);      } catch(e) {}
+      return { chars, opeds };
+    }
+
     const cached = getCachedGist();
     if (cached) {
       // Instant boot from cache
       mergeData(cached.chars, cached.opeds);
       bootGame();
-      // Silently refresh cache in background
-      const ts = Date.now();
-      Promise.all([
-        fetch(`https://gist.githubusercontent.com/rimuru926/${effectiveGistId}/raw/characters.json?t=${ts}`).then(r => r.ok ? r.json() : []).catch(() => []),
-        fetch(`https://gist.githubusercontent.com/rimuru926/${effectiveGistId}/raw/opeds.json?t=${ts}`).then(r => r.ok ? r.json() : []).catch(() => [])
-      ]).then(([chars, opeds]) => {
+      // Silently refresh via API (bypasses GitHub CDN cache)
+      fetchPublicGist(effectiveGistId).then(({ chars, opeds }) => {
         setCachedGist(chars, opeds);
         let changed = 0;
         (chars||[]).forEach(c => {
@@ -6372,14 +6380,10 @@
       return;
     }
 
-    // No cache — fetch fresh then boot
-    const ts = Date.now();
-    Promise.all([
-      fetch(`https://gist.githubusercontent.com/rimuru926/${effectiveGistId}/raw/characters.json?t=${ts}`).then(r => r.ok ? r.json() : []).catch(() => []),
-      fetch(`https://gist.githubusercontent.com/rimuru926/${effectiveGistId}/raw/opeds.json?t=${ts}`).then(r => r.ok ? r.json() : []).catch(() => [])
-    ]).then(([gistChars, gistOpeds]) => {
-      setCachedGist(gistChars, gistOpeds);
-      mergeData(gistChars, gistOpeds);
+    // No cache — fetch fresh via API then boot
+    fetchPublicGist(effectiveGistId).then(({ chars, opeds }) => {
+      setCachedGist(chars, opeds);
+      mergeData(chars, opeds);
     }).catch(() => {}).finally(() => { bootGame(); });
   })();
 
