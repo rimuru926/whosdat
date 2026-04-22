@@ -1758,12 +1758,7 @@
     </div>
     <div class="char-card" id="char-card">
       <img id="char-img" src="" alt="Guess this character">
-      <div class="loading-cover" id="loading-cover" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
-        <div class="spinner"></div>
-        <div style="margin-top:20px; font-weight:500; letter-spacing:0.5px;">INITIALIZING PIXELWHO...</div>
-        <div id="debug-log" style="margin-top:20px; font-size:12px; color:rgba(255,255,255,0.6); max-width:80%; text-align:center; font-family:monospace; line-height:1.4;"></div>
-        <button id="force-boot-btn" style="display:none; margin-top:20px; padding:10px 20px; background:var(--accent); color:white; border:none; border-radius:8px; cursor:pointer; font-family:inherit; font-weight:bold;">Force Start Game</button>
-      </div>
+      <div class="loading-cover" id="loading-cover"><div class="spinner"></div></div>
       <div class="result-overlay" id="result-overlay">
         <div class="result-icon" id="result-icon"></div>
         <div class="result-name" id="result-name"></div>
@@ -2535,29 +2530,7 @@
 
     </div> </div>
   <script>
-  (function setupDebug() {
-    const logEl = document.getElementById('debug-log');
-    const forceBtn = document.getElementById('force-boot-btn');
-    window.pixelLog = function(msg) {
-      console.log("[PixelWho Debug]", msg);
-      if (logEl) {
-        const div = document.createElement('div');
-        div.textContent = msg;
-        logEl.appendChild(div);
-      }
-    };
-    window.onerror = function(msg, url, line) {
-      pixelLog(`❌ ERROR: ${msg} (line ${line})`);
-    };
-    setTimeout(() => {
-      const cover = document.getElementById('loading-cover');
-      if (cover && cover.style.display !== 'none') {
-        pixelLog("⚠️ Loading taking too long...");
-        if (forceBtn) forceBtn.style.display = 'block';
-      }
-    }, 5000);
-    if (forceBtn) forceBtn.onclick = () => { pixelLog("🚀 Forcing boot..."); window.bootGame(); };
-  })();
+  window.pixelLog = function(msg) { console.log("[PixelWho]", msg); };
 
   // ═══════════════════════════════════════════════════
   //  PUBLIC GIST — data source for all visitors
@@ -6376,22 +6349,14 @@
     function bootGame() {
       if (window._gameBooted) return;
       window._gameBooted = true;
-      pixelLog("🎮 Booting game engine...");
-      
-      // Safety: Hide loading screen regardless of errors
-      setTimeout(() => {
-        if (loadCoverEl) loadCoverEl.style.display = 'none';
-      }, 500);
-
+      if (loadCoverEl) loadCoverEl.style.display = 'none';
       try {
         loadSeriesFilter();
         buildSeriesFilter();
         initGame();
         if (opedReady) opedPool = [...window.OPEDS].sort(() => Math.random() - 0.5);
         runImageAudit();
-        pixelLog("✅ Game ready!");
       } catch (e) {
-        pixelLog(`❌ Boot Error: ${e.message}`);
         console.error("Boot error:", e);
       }
     }
@@ -6416,19 +6381,19 @@
 
     syncLoad();
     const effectiveGistId = PUBLIC_GIST_ID || syncGistId;
-    pixelLog(`🔍 Gist ID: ${effectiveGistId || 'None'}`);
+    console.log(`🔍 Gist ID: ${effectiveGistId || 'None'}`);
     if (!effectiveGistId) {
-      pixelLog("ℹ️ No Gist ID found, booting local data.");
+      console.log("ℹ️ No Gist ID found, booting local data.");
       bootGame();
       return;
     }
 
     const cached = getCachedGist();
     if (cached) {
-      pixelLog("📦 Loading from cache...");
+      console.log("📦 Loading from cache...");
       mergeData(cached.chars, cached.opeds);
       bootGame();
-      pixelLog("📡 Checking for Gist updates...");
+      console.log("📡 Checking for Gist updates...");
       fetchPublicGist(effectiveGistId).then(data => {
         if (!data) return;
         const { chars, opeds } = data;
@@ -6461,16 +6426,16 @@
       return;
     }
 
-    pixelLog("📡 Fetching fresh Gist data...");
+    console.log("📡 Fetching fresh Gist data...");
     fetchPublicGist(effectiveGistId).then(data => {
       if (data) {
-        pixelLog("📥 Data received, merging...");
+        console.log("📥 Data received, merging...");
         setCachedGist(data.chars, data.opeds);
         mergeData(data.chars, data.opeds);
       }
       bootGame();
     }).catch(e => {
-      pixelLog(`⚠️ Fetch failed: ${e.message}`);
+      console.log(`⚠️ Fetch failed: ${e.message}`);
       bootGame();
     });
   })();
