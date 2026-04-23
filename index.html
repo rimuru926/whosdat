@@ -6711,7 +6711,7 @@
     if (loadCoverEl) loadCoverEl.style.display = 'flex';
 
     const GIST_CACHE_KEY = 'pixelwho-gist-cache-v1';
-    const CACHE_TTL_MS   = 10 * 60 * 1000; // 10 minutes
+    const CACHE_TTL_MS   = 1 * 60 * 1000; // 1 minute — keep fresh
     function getCachedGist() {
       try {
         const raw = localStorage.getItem(GIST_CACHE_KEY);
@@ -6774,15 +6774,10 @@
     window.bootGame = bootGame;
 
     async function fetchPublicGist(gistId) {
-      const cacheKey = 'gist-etag-' + gistId;
-      const cachedEtag = localStorage.getItem(cacheKey);
-      const headers = { 'Accept': 'application/vnd.github+json' };
-      if (cachedEtag) headers['If-None-Match'] = cachedEtag;
+      // Always fetch fresh — no ETag caching so updates are seen immediately
+      const headers = { 'Accept': 'application/vnd.github+json', 'Cache-Control': 'no-cache' };
       const r = await fetch(`https://api.github.com/gists/${gistId}`, { headers });
-      if (r.status === 304) return null;
       if (!r.ok) throw new Error('Gist API error ' + r.status);
-      const newEtag = r.headers.get('ETag');
-      if (newEtag) localStorage.setItem(cacheKey, newEtag);
       const data = await r.json();
       let chars = [], opeds = [];
       try { if (data.files['characters.json']) chars = JSON.parse(data.files['characters.json'].content); } catch(e) {}
@@ -6830,6 +6825,8 @@
           // Refresh Mod Panel UI if it's open
           if (typeof renderSeriesLibrary === 'function') renderSeriesLibrary();
           if (typeof renderOpedEntryList === 'function') renderOpedEntryList();
+          if (typeof renderEditList === 'function') renderEditList(document.getElementById('edit-search') ? document.getElementById('edit-search').value : '');
+          if (typeof updateModCharCount === 'function') updateModCharCount();
           
           (chars||[]).forEach(c => {
             if (!c || !c.name) return;
