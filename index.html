@@ -6592,6 +6592,7 @@
       } else if (parsed.type === 'animethemes' || parsed.type === 'direct') {
         atPlayer.src = parsed.fullUrl;
         atPlayer.volume = opedVolume / 100;
+        atPlayer.currentTime = 0; // Force start from beginning
         atPlayer.play();
         modPreviewTimer = setInterval(() => {
           updateProgress(atPlayer.currentTime, atPlayer.duration);
