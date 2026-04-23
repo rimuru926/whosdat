@@ -2052,6 +2052,7 @@
       <div class="oped-status-text" id="oped-status-text">Press Play to start</div>
       <div id="oped-yt-player" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;visibility:hidden;"></div>
       <video id="oped-at-player" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;visibility:hidden;" preload="auto" playsinline></video>
+      <iframe id="oped-embed-player" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;visibility:hidden;" allow="autoplay" frameborder="0"></iframe>
     </div>
 
     <button id="oped-replay-btn">▶ Play Clip</button>
@@ -2083,7 +2084,7 @@
     <div class="oped-empty-state" id="oped-empty" style="display:none">
       <div class="oped-empty-icon">🎵</div>
       <div class="oped-empty-title">No OP/EDs yet</div>
-      <div class="oped-empty-sub">Go to <strong>Mod Panel → OP/ED</strong> to add YouTube links for anime openings and endings.</div>
+      <div class="oped-empty-sub">Go to <strong>Mod Panel → OP/ED</strong> to add links (YouTube, AnimeThemes, Dailymotion, or direct media files) for anime openings and endings.</div>
     </div>
 
   </div>
@@ -2250,7 +2251,7 @@
           <div class="mod-img-input-row">
             <input class="mod-input" id="mod-image" type="text" placeholder="https://… or images/zoro.jpg" autocorrect="off" autocomplete="off" spellcheck="false">
             <button class="mod-upload-btn" id="mod-upload-btn" title="Upload from device">📁 Upload</button>
-            <input type="file" id="mod-file-input" accept="image/*" style="display:none">
+            <input type="file" id="mod-file-input" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;z-index:-1" tabindex="-1">
           </div>
           <button class="mod-img-dl-btn" id="mod-img-dl-btn">⬇ Save image to device</button>
           <div class="mod-img-preview" id="mod-img-preview">
@@ -2506,12 +2507,18 @@
           <div class="mod-label">Video Link <span class="req">REQUIRED</span></div>
           <div style="display:flex;gap:8px;align-items:stretch">
             <input class="mod-input" id="oped-mod-ytid" type="text"
-              placeholder="YouTube URL/ID or AnimeThemes URL"
+              placeholder="YouTube, AnimeThemes, Dailymotion, Bilibili, Niconico, or direct .mp4/.webm URL"
               autocorrect="off" autocomplete="off" spellcheck="false" style="font-family:monospace;font-size:0.85rem;flex:1">
             <button type="button" id="oped-test-link-btn" style="padding:0 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;color:var(--muted);font-family:Outfit,sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:color 0.15s,border-color 0.15s">Test Link</button>
           </div>
-          <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">
-            YouTube: paste a <code>youtu.be/</code> or <code>?v=</code> URL.<br>AnimeThemes: paste the full <code>animethemes.moe/anime/...</code> or <code>.webm</code> URL.
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:4px;line-height:1.7">
+            <strong style="color:var(--text)">Supported sources:</strong><br>
+            ▸ <strong>YouTube</strong> — <code>youtu.be/</code>, <code>?v=</code>, or shorts URL<br>
+            ▸ <strong>AnimeThemes</strong> — <code>animethemes.moe/anime/...</code>, <code>animethemes.moe/video/...</code>, or direct <code>v.animethemes.moe/....webm</code><br>
+            ▸ <strong>Bilibili</strong> — <code>bilibili.com/video/BV...</code><br>
+            ▸ <strong>Dailymotion</strong> — <code>dailymotion.com/video/...</code><br>
+            ▸ <strong>Niconico</strong> — <code>nicovideo.jp/watch/sm...</code><br>
+            ▸ <strong>Direct file</strong> — any <code>.mp4</code>, <code>.webm</code>, <code>.mp3</code>, <code>.ogg</code>, <code>.m4a</code> URL
           </div>
           <div id="oped-link-status" style="font-size:0.75rem;margin-top:6px;min-height:1.2em"></div>
         </div>
@@ -2532,36 +2539,66 @@
     </div> </div>
   <script>
   window.pixelLog = function(msg) { console.log("[PixelWho]", msg); };
-  // Helper: Parse video link (YouTube or AnimeThemes)
+  // Helper: Parse video link — supports YouTube, AnimeThemes, Bilibili, Dailymotion,
+  // Niconico, and any direct .mp4/.webm/.ogg/.m4a/.mp3 URL.
   function parseVideoLink(raw) {
     const trimmed = raw.trim();
     if (!trimmed) return null;
 
-    // AnimeThemes handling
+    // ── AnimeThemes ──────────────────────────────────────────────
     if (trimmed.includes('animethemes.moe') || trimmed.includes('v.animethemes')) {
-      // Direct .webm link
-      let directMatch = trimmed.match(/https?:\/\/v\.animethemes\.moe\/(.+\.webm)/i);
-      if (directMatch) return { type: 'animethemes', id: directMatch[1], fullUrl: directMatch[0] };
+      // Direct CDN link: https://v.animethemes.moe/Filename-OP1.webm
+      let directMatch = trimmed.match(/https?:\/\/v\.animethemes\.moe\/([^?#]+\.webm)/i);
+      if (directMatch) return { type: 'animethemes', id: directMatch[1], fullUrl: 'https://v.animethemes.moe/' + directMatch[1] };
 
-      // Video page link
-      let videoPageMatch = trimmed.match(/animethemes\.moe\/video\/(.+\.webm)/i);
+      // Video page: animethemes.moe/video/Filename.webm
+      let videoPageMatch = trimmed.match(/animethemes\.moe\/video\/([^?#]+\.webm)/i);
       if (videoPageMatch) return { type: 'animethemes', id: videoPageMatch[1], fullUrl: 'https://v.animethemes.moe/' + videoPageMatch[1] };
 
-      // Theme page link: https://animethemes.moe/anime/jojo_no_kimyou_na_bouken/OP1-NCBD1080
-      let themePageMatch = trimmed.match(/animethemes\.moe\/anime\/([^/]+)\/([^/?#]+)/i);
+      // Theme page: https://animethemes.moe/anime/jojo_no_kimyou_na_bouken/OP1-NCBD1080
+      // or:        https://animethemes.moe/anime/jojo_no_kimyou_na_bouken/OP1
+      let themePageMatch = trimmed.match(/animethemes\.moe\/anime\/([^/?#]+)\/([^/?#]+)/i);
       if (themePageMatch) {
         const animeSlug = themePageMatch[1];
-        const themeSlug = themePageMatch[2];
-        const pascalAnime = animeSlug.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join('');
+        // Strip quality suffix (e.g. -NCBD1080, -BD1080) from theme slug for the filename
+        const themeSlug = themePageMatch[2].replace(/-(?:NC)?(?:BD|DVD)?\d{3,4}$/i, '');
+        // Convert snake_case slug to PascalCase (handles multi-word slugs correctly)
+        const pascalAnime = animeSlug
+          .split('_')
+          .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+          .join('');
         const filename = pascalAnime + '-' + themeSlug + '.webm';
         return { type: 'animethemes', id: filename, fullUrl: 'https://v.animethemes.moe/' + filename };
       }
     }
 
-    // YouTube handling
+    // ── YouTube ──────────────────────────────────────────────────
     const ytMatch = trimmed.match(/(?:v=|youtu\.be\/|embed\/|shorts\/|watch\?v=)([A-Za-z0-9_-]{11})/);
     if (ytMatch) return { type: 'youtube', id: ytMatch[1] };
     if (trimmed.length === 11 && /^[A-Za-z0-9_-]+$/.test(trimmed)) return { type: 'youtube', id: trimmed };
+
+    // ── Bilibili ─────────────────────────────────────────────────
+    // e.g. https://www.bilibili.com/video/BV1xx411c7mD
+    const biliMatch = trimmed.match(/bilibili\.com\/video\/((?:BV|av)[A-Za-z0-9]+)/i);
+    if (biliMatch) return { type: 'bilibili', id: biliMatch[1], fullUrl: 'https://www.bilibili.com/video/' + biliMatch[1] };
+
+    // ── Dailymotion ──────────────────────────────────────────────
+    // e.g. https://www.dailymotion.com/video/x7tgd2q
+    const dmMatch = trimmed.match(/dailymotion\.com\/(?:video|embed\/video)\/([a-zA-Z0-9]+)/i);
+    if (dmMatch) {
+      const dmId = dmMatch[1];
+      return { type: 'dailymotion', id: dmId, fullUrl: 'https://www.dailymotion.com/embed/video/' + dmId };
+    }
+
+    // ── Niconico ─────────────────────────────────────────────────
+    // e.g. https://www.nicovideo.jp/watch/sm12345678
+    const nicoMatch = trimmed.match(/nicovideo\.jp\/watch\/((?:sm|nm|so)\d+)/i);
+    if (nicoMatch) return { type: 'niconico', id: nicoMatch[1], fullUrl: 'https://www.nicovideo.jp/watch/' + nicoMatch[1] };
+
+    // ── Direct media URL (.mp4 / .webm / .ogg / .m4a / .mp3 / .flac) ────────
+    if (/^https?:\/\/.+\.(?:mp4|webm|ogg|m4a|mp3|flac|opus|aac)(\?[^#]*)?$/i.test(trimmed)) {
+      return { type: 'direct', id: trimmed, fullUrl: trimmed };
+    }
 
     return null;
   }
@@ -4606,8 +4643,36 @@
   const modFileInput  = document.getElementById('mod-file-input');
   const modUploadBtn  = document.getElementById('mod-upload-btn');
 
-  modUploadBtn.addEventListener('click', () => modFileInput.click());
+  // Mobile-friendly upload: trigger file picker via label trick
+  modUploadBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    // Create a fresh input each time to avoid iOS quirks with reuse
+    const inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = 'image/*';
+    // Do NOT set capture — lets user choose camera OR gallery on mobile
+    inp.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;width:1px;height:1px;';
+    document.body.appendChild(inp);
+    inp.addEventListener('change', () => {
+      const file = inp.files[0];
+      document.body.removeChild(inp);
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const dataUrl = ev.target.result;
+        modImageInput.value = dataUrl;
+        modPreviewImg.onload = () => modPreviewWrap.classList.add('has-img');
+        modPreviewImg.src = dataUrl;
+        modImgDlBtn.classList.remove('show');
+        modUploadBtn.textContent = '\u2713 ' + file.name;
+        modUploadBtn.classList.add('loaded');
+      };
+      reader.readAsDataURL(file);
+    });
+    inp.click();
+  });
 
+  // Keep the original hidden input handler as fallback
   modFileInput.addEventListener('change', () => {
     const file = modFileInput.files[0];
     if (!file) return;
@@ -4618,7 +4683,7 @@
       modPreviewImg.onload = () => modPreviewWrap.classList.add('has-img');
       modPreviewImg.src = dataUrl;
       modImgDlBtn.classList.remove('show');
-      modUploadBtn.textContent = '✓ ' + file.name;
+      modUploadBtn.textContent = '\u2713 ' + file.name;
       modUploadBtn.classList.add('loaded');
     };
     reader.readAsDataURL(file);
@@ -5913,7 +5978,9 @@
           document.getElementById('oped-status-text').textContent = 'Press Play to start';
           document.getElementById('oped-progress-bar').style.transition = 'none';
           document.getElementById('oped-progress-bar').style.width = '0%';
-          try { ytPlayer.stopVideo(); if(atPlayer) atPlayer.pause(); } catch(e){}
+          try { ytPlayer.stopVideo(); } catch(e){}
+          try { if(atPlayer) { atPlayer.pause(); atPlayer.src = ''; } } catch(e){}
+          try { if(embedPlayer) { embedPlayer.src = ''; } } catch(e){}
       }
     });
   });
@@ -5939,6 +6006,8 @@
     const clipDuration = getOpedClipDuration();
     opedClipTimer = setTimeout(() => {
       try { ytPlayer.stopVideo(); } catch(e) {}
+      try { if(atPlayer) { atPlayer.pause(); atPlayer.src = ''; } } catch(e) {}
+      try { if(embedPlayer) { embedPlayer.src = ''; } } catch(e) {}
       stopOpedBars();
       statusEl.textContent = 'Clip ended — make a guess!';
       statusEl.classList.remove('playing');
@@ -5958,6 +6027,8 @@
     return Math.min(90, opedDuration);
   }
 
+  const embedPlayer = document.getElementById('oped-embed-player');
+
   function opedPlayClip() {
     if (!opedCurrent) return;
     clearTimeout(opedClipTimer);
@@ -5972,15 +6043,38 @@
         document.getElementById('oped-replay-btn').disabled = true;
         document.getElementById('oped-replay-btn').textContent = '⏳ Buffering…';
 
-        if (opedCurrent.videoSource === 'animethemes') {
+        const src = opedCurrent.videoSource;
+
+        if (src === 'animethemes' || src === 'direct') {
+          // HTML5 media player (video or audio)
           if (atPlayer) {
-            atPlayer.src = opedCurrent.videoUrl || ('https://v.animethemes.moe/' + opedCurrent.youtubeId);
+            atPlayer.src = opedCurrent.videoUrl || opedCurrent.youtubeId;
             atPlayer.currentTime = 0;
-            atPlayer.play().catch(() => { statusEl.textContent = 'Error playing video'; });
+            atPlayer.volume = opedVolume / 100;
+            atPlayer.play().catch(() => { statusEl.textContent = 'Error playing video — try another'; });
           }
+        } else if (src === 'dailymotion') {
+          // Dailymotion embed iframe
+          if (embedPlayer) {
+            const dmUrl = 'https://www.dailymotion.com/embed/video/' + opedCurrent.youtubeId + '?autoplay=1&mute=0';
+            embedPlayer.src = dmUrl;
+            // Dailymotion autoplay — visuals start after a short delay
+            setTimeout(() => startOpedVisuals(), 1500);
+          }
+        } else if (src === 'bilibili') {
+          // Bilibili: open in new tab (no reliable embed API)
+          statusEl.textContent = 'Bilibili — opening in new tab…';
+          window.open(opedCurrent.videoUrl || ('https://www.bilibili.com/video/' + opedCurrent.youtubeId), '_blank');
+          setTimeout(() => startOpedVisuals(), 500);
+        } else if (src === 'niconico') {
+          // Niconico: open in new tab
+          statusEl.textContent = 'Niconico — opening in new tab…';
+          window.open(opedCurrent.videoUrl || ('https://www.nicovideo.jp/watch/' + opedCurrent.youtubeId), '_blank');
+          setTimeout(() => startOpedVisuals(), 500);
         } else {
+          // YouTube
           let safeDur = ytPlayer.getDuration();
-          if (!safeDur || safeDur < 10) safeDur = 90; 
+          if (!safeDur || safeDur < 10) safeDur = 90;
           if (!opedStartLocked) {
             const maxStart = Math.max(5, safeDur - opedDuration - 10);
             opedStart = Math.floor(Math.random() * maxStart) + 5;
@@ -5995,7 +6089,9 @@
       } catch(e) {}
     };
 
-    if (opedCurrent.videoSource === 'animethemes' || ytReady) doPlay();
+    const src = opedCurrent.videoSource;
+    if (src === 'animethemes' || src === 'direct' || src === 'dailymotion' || src === 'bilibili' || src === 'niconico') doPlay();
+    else if (ytReady) doPlay();
     else ytPendingPlay = doPlay;
   }
 
@@ -6025,6 +6121,8 @@
     document.getElementById('oped-status-text').textContent = 'Press Play to start';
     document.getElementById('oped-status-text').classList.remove('playing');
     clearTimeout(opedClipTimer);
+    try { if(atPlayer) { atPlayer.pause(); atPlayer.src = ''; } } catch(e){}
+    try { if(typeof embedPlayer !== 'undefined' && embedPlayer) { embedPlayer.src = ''; } } catch(e){}
     opedStart = 0;
     opedStartLocked = false;
 
@@ -6077,9 +6175,11 @@
       document.getElementById('oped-input').value = '';
       document.getElementById('oped-ac').classList.remove('open');
       clearTimeout(opedClipTimer);
-      try { ytPlayer && ytPlayer.stopVideo(); if(atPlayer) atPlayer.pause(); } catch(e){}
+      try { ytPlayer && ytPlayer.stopVideo(); } catch(e){}
+      try { if(atPlayer) { atPlayer.pause(); atPlayer.src = ''; } } catch(e){}
+      try { if(typeof embedPlayer !== 'undefined' && embedPlayer) { embedPlayer.src = ''; } } catch(e){}
       stopOpedBars();
-      
+
       const rev = document.getElementById('oped-answer-reveal');
       let revealText = '✅ Correct! <strong>' + opedCurrent.title + '</strong>';
       if (opedCurrent.song) revealText += '<br><em style="font-size:0.85em;color:var(--muted);margin-top:8px;display:block">' + opedCurrent.song + '</em>';
@@ -6100,13 +6200,15 @@
       document.getElementById('oped-input').value = '';
 
       if (opedGuessesLeft <= 0) {
-        opedState = 'done';
-        opedStreak = 0;
-        bumpOpedStreak(0);
-        recordOped(false, 0);
-        document.getElementById('oped-input').disabled = true;
-        clearTimeout(opedClipTimer);
-        try { ytPlayer && ytPlayer.stopVideo(); if(atPlayer) atPlayer.pause(); } catch(e){}
+      opedState = 'done';
+      opedStreak = 0;
+      bumpOpedStreak(0);
+      recordOped(false, 0);
+      document.getElementById('oped-input').disabled = true;
+      clearTimeout(opedClipTimer);
+      try { ytPlayer && ytPlayer.stopVideo(); } catch(e){}
+      try { if(atPlayer) { atPlayer.pause(); atPlayer.src = ''; } } catch(e){}
+      try { if(embedPlayer) { embedPlayer.src = ''; } } catch(e){}
         stopOpedBars();
         const rev = document.getElementById('oped-answer-reveal');
         let revealText = '❌ It was <strong>' + opedCurrent.title + '</strong> (' + (opedCurrent.type||'OP') + ')';
@@ -6199,7 +6301,9 @@
     opedStreak = 0; bumpOpedStreak(0);
     document.getElementById('oped-input').disabled = true;
     clearTimeout(opedClipTimer);
-    try { ytPlayer && ytPlayer.stopVideo(); if(atPlayer) atPlayer.pause(); } catch(e){}
+    try { ytPlayer && ytPlayer.stopVideo(); } catch(e){}
+    try { if(atPlayer) { atPlayer.pause(); atPlayer.src = ''; } } catch(e){}
+    try { if(embedPlayer) { embedPlayer.src = ''; } } catch(e){}
     stopOpedBars();
     const rev = document.getElementById('oped-answer-reveal');
     let revealText = 'Skipped — it was <strong>' + opedCurrent.title + '</strong> (' + (opedCurrent.type||'OP') + ')';
@@ -6228,7 +6332,7 @@
       item.innerHTML = `<div class="oped-entry-type">${esc(entry.type||'OP')}</div>
         <div class="oped-entry-info">
           <div class="oped-entry-title">${esc(entry.title)}${entry.song ? ' — ' + esc(entry.song) : ''}</div>
-          <div class="oped-entry-id">${esc(entry.youtubeId)}</div>
+          <div class="oped-entry-id">${entry.videoSource && entry.videoSource !== 'youtube' ? '[' + esc(entry.videoSource) + '] ' : ''}${esc(entry.videoUrl || entry.youtubeId)}</div>
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0">
           <button class="oped-entry-play" data-idx="${idx}" style="padding:5px 10px;background:rgba(44,182,125,0.1);border:1.5px solid rgba(44,182,125,0.3);border-radius:7px;color:var(--correct);font-size:0.75rem;font-weight:600;cursor:pointer;margin-right:4px">▶ Play</button><button class="oped-entry-edit" data-idx="${idx}" style="padding:5px 10px;background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;color:var(--accent);font-size:0.75rem;font-weight:600;cursor:pointer">Edit</button>
@@ -6246,7 +6350,8 @@
         document.getElementById('oped-mod-type').value = entry.type || 'OP';
         document.getElementById('oped-mod-song').value = entry.song || '';
         document.getElementById('oped-mod-endtime').value = entry.endTime || '';
-        document.getElementById('oped-mod-ytid').value = entry.youtubeId;
+        // Restore the original URL: prefer fullUrl for non-YouTube sources
+        document.getElementById('oped-mod-ytid').value = entry.videoUrl || entry.youtubeId;
         document.getElementById('oped-mod-add-btn').textContent = '💾 Save Changes';
         document.getElementById('oped-mod-add-btn').dataset.editing = 'true';
         document.querySelectorAll('.mod-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.modtab === 'oped'));
@@ -6288,7 +6393,7 @@
     if (!title) { errEl.textContent = 'Title is required.'; return; }
     
     const isEditing = editingOpedIdx !== null;
-    if (!isEditing && OPEDS.find(e => e.youtubeId === ytId)) { errEl.textContent = 'This video is already in the library.'; return; }
+    if (!isEditing && OPEDS.find(e => (e.videoUrl || e.youtubeId) === (parsed.fullUrl || ytId))) { errEl.textContent = 'This video is already in the library.'; return; }
 
     if (isEditing) {
       OPEDS[editingOpedIdx] = { title, type, youtubeId: ytId, videoSource: parsed.type, videoUrl: parsed.fullUrl };
@@ -6330,22 +6435,65 @@
     const ytIdEl = document.getElementById('oped-mod-ytid');
     const statusEl = document.getElementById('oped-link-status');
     const parsed = parseVideoLink(ytIdEl.value);
-    
+
     if (!parsed) {
       statusEl.textContent = '❌ Invalid link format';
       statusEl.style.color = 'var(--wrong)';
       return;
     }
-    
+
+    // Sources that open externally — just confirm parse succeeded
+    if (parsed.type === 'bilibili' || parsed.type === 'niconico') {
+      statusEl.textContent = '✅ Link parsed (' + parsed.type + ': ' + parsed.id + ') — will open in new tab during play';
+      statusEl.style.color = 'var(--correct)';
+      return;
+    }
+
+    // Dailymotion — verify embed URL exists
+    if (parsed.type === 'dailymotion') {
+      statusEl.textContent = '⏳ Testing...';
+      statusEl.style.color = 'var(--muted)';
+      fetch('https://api.dailymotion.com/video/' + parsed.id + '?fields=id,title', { method: 'GET' })
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(data => {
+          statusEl.textContent = '✅ Found: ' + (data.title || parsed.id);
+          statusEl.style.color = 'var(--correct)';
+        })
+        .catch(() => {
+          statusEl.textContent = '❌ Dailymotion video not found or unavailable';
+          statusEl.style.color = 'var(--wrong)';
+        });
+      return;
+    }
+
+    // AnimeThemes or direct media — HEAD request
+    if (parsed.type === 'animethemes' || parsed.type === 'direct') {
+      statusEl.textContent = '⏳ Testing...';
+      statusEl.style.color = 'var(--muted)';
+      fetch(parsed.fullUrl, { method: 'HEAD' })
+        .then(r => {
+          if (r.ok) {
+            statusEl.textContent = '✅ Link is valid!';
+            statusEl.style.color = 'var(--correct)';
+          } else {
+            statusEl.textContent = '❌ File not found (HTTP ' + r.status + ')';
+            statusEl.style.color = 'var(--wrong)';
+          }
+        })
+        .catch(() => {
+          statusEl.textContent = '❌ Could not verify link (CORS or network error)';
+          statusEl.style.color = 'var(--muted)';
+        });
+      return;
+    }
+
+    // YouTube — oEmbed check
     statusEl.textContent = '⏳ Testing...';
     statusEl.style.color = 'var(--muted)';
-    
-    const testUrl = parsed.type === 'animethemes' ? parsed.fullUrl : 'https://www.youtube.com/oembed?url=https://youtu.be/' + parsed.id + '&format=json';
-    
-    fetch(testUrl, { method: parsed.type === 'animethemes' ? 'HEAD' : 'GET' })
+    fetch('https://www.youtube.com/oembed?url=https://youtu.be/' + parsed.id + '&format=json')
       .then(r => {
         if (r.ok) {
-          statusEl.textContent = '✅ Link is valid!';
+          statusEl.textContent = '✅ YouTube video found!';
           statusEl.style.color = 'var(--correct)';
         } else {
           statusEl.textContent = '❌ Video not found or unavailable';
@@ -6402,9 +6550,10 @@
       }
       if (Array.isArray(gistOpeds)) {
         gistOpeds.forEach(o => {
-          if (o && o.youtubeId) {
+          if (o && (o.youtubeId || o.videoUrl)) {
             if (!window.OPEDS) window.OPEDS = [];
-            if (!window.OPEDS.some(x => x.youtubeId === o.youtubeId)) window.OPEDS.push(o);
+            const key = o.videoUrl || o.youtubeId;
+            if (!window.OPEDS.some(x => (x.videoUrl || x.youtubeId) === key)) window.OPEDS.push(o);
           }
         });
       }
