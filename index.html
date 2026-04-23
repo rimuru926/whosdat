@@ -2639,17 +2639,17 @@
   // ═══════════════════════════════════════════════════
   //  CHARACTERS — populated from Gist on load
   // ═══════════════════════════════════════════════════
-  window.CHARACTERS = [];
+  const CHARACTERS = [];
 
   // ═══════════════════════════════════════════════════
   //  OP/ED DATA
   // ═══════════════════════════════════════════════════
-  window.OPEDS = [];
+  let OPEDS = [];
   let editingOpedIdx = null;
   (function loadOpeds() {
     try {
       const saved = JSON.parse(localStorage.getItem('whosdat-opeds') || '[]');
-      if (Array.isArray(saved)) window.OPEDS = saved;
+      if (Array.isArray(saved)) OPEDS = saved;
     } catch(e) {}
   })();
   window.OPEDS = OPEDS;
@@ -3349,7 +3349,7 @@
     
     if (nextChar && nextChar.image) {
       const preloadImg = new Image();
-      preloadImg.src = getImgUrl(nextChar.image);
+      preloadImg.src = nextChar.image;
     }
 
     clearGameUI();
@@ -3358,12 +3358,9 @@
   }
 
 
-  // Helper to append cache-busting version to image URLs
   function getImgUrl(url) {
-    if (!url || typeof url !== 'string') return url;
-    if (url.startsWith('data:')) return url; // Don't bust base64
-    const separator = url.includes('?') ? '&' : '?';
-    return url + separator + 'v=' + gistDataVersion;
+    if (!url || typeof url !== 'string' || url.startsWith('data:')) return url;
+    return url + (url.includes('?') ? '&' : '?') + 'v=' + gistDataVersion;
   }
 
   function applyImageLoad() {
@@ -3862,7 +3859,7 @@
   function buildMiniCard(char, tierId){
     const card=document.createElement('div');
     card.className='mini-card'; card.dataset.name=char.name; card.draggable=true;
-    const img=document.createElement('img'); img.src=getImgUrl(char.image); img.alt=char.name; img.loading='lazy';
+    const img=document.createElement('img'); img.src=char.image; img.alt=char.name; img.loading='lazy';
     img.onerror=()=>{ img.src='https://placehold.co/62x84/221f35/ff8906?text=?'; };
     const nm=document.createElement('div'); nm.className='mini-name'; nm.textContent=char.name;
     card.appendChild(img); card.appendChild(nm);
@@ -4025,7 +4022,7 @@
     const reveal = document.getElementById('quiz-reveal');
     reveal.className = 'quiz-reveal show ' + (correct ? 'correct-r' : 'wrong-r');
     const img = document.getElementById('quiz-reveal-img');
-    img.src = getImgUrl(quizChar.image);
+    img.src = quizChar.image;
     img.onerror = () => { img.src = 'https://placehold.co/52x68/221f35/ff8906?text=?'; };
     document.getElementById('quiz-reveal-verdict').textContent = correct ? '✓ Correct!' : '✗ Wrong';
     document.getElementById('quiz-reveal-name').textContent    = quizChar.name;
@@ -5123,7 +5120,7 @@
 
         const top = document.createElement('div'); top.className = 'url-conv-top';
         const thumb = document.createElement('img'); thumb.className = 'url-conv-thumb';
-        thumb.src = c.image;
+        thumb.src = getImgUrl(c.image);
         thumb.onerror = () => { thumb.src = 'https://placehold.co/46x60/221f35/ff8906?text=?'; };
         const meta = document.createElement('div'); meta.style.flex = '1';
         const nm = document.createElement('div'); nm.className = 'url-conv-name';
@@ -5178,7 +5175,7 @@
 
       const top = document.createElement('div'); top.className = 'url-conv-top';
       const thumb = document.createElement('img'); thumb.className = 'url-conv-thumb';
-      thumb.src = c.image; thumb.loading = 'lazy';
+      thumb.src = getImgUrl(c.image); thumb.loading = 'lazy';
       thumb.onerror = () => { thumb.src = 'https://placehold.co/46x60/221f35/ff8906?text=?'; };
       const meta = document.createElement('div'); meta.style.flex = '1';
       const nm = document.createElement('div'); nm.className = 'url-conv-name'; nm.textContent = c.name;
@@ -5271,7 +5268,7 @@
       const item = document.createElement('div');
       item.className = 'no-quote-item';
       const thumb = document.createElement('img');
-      thumb.className = 'no-quote-thumb'; thumb.src = c.image; thumb.loading = 'lazy';
+      thumb.className = 'no-quote-thumb'; thumb.src = getImgUrl(c.image); thumb.loading = 'lazy';
       thumb.onerror = () => { thumb.src = 'https://placehold.co/32x42/221f35/ff8906?text=?'; };
       const info = document.createElement('div'); info.style.flex = '1';
       const nm  = document.createElement('div'); nm.className  = 'no-quote-name';   nm.textContent = c.name;
@@ -5601,7 +5598,7 @@
 
   let lastGistEtag = '';
   let lastGistUpdate = '';
-  let gistDataVersion = Date.now(); // Global version for image cache busting
+  let gistDataVersion = Date.now();
 
   async function gistFetch() {
     const r = await fetch('https://api.github.com/gists/' + syncGistId, {
@@ -6721,7 +6718,7 @@
     if (loadCoverEl) loadCoverEl.style.display = 'flex';
 
     const GIST_CACHE_KEY = 'pixelwho-gist-cache-v1';
-    const CACHE_TTL_MS   = 1 * 60 * 1000; // 1 minute — keep fresh
+    const CACHE_TTL_MS   = 10 * 60 * 1000; // 10 minutes
     function getCachedGist() {
       try {
         const raw = localStorage.getItem(GIST_CACHE_KEY);
@@ -6738,9 +6735,7 @@
     function mergeData(gistChars, gistOpeds) {
       if (Array.isArray(gistChars)) {
         if (!window.CHARACTERS) window.CHARACTERS = [];
-        // Ensure we have a valid array to map over
-        const currentChars = Array.isArray(window.CHARACTERS) ? window.CHARACTERS : [];
-        const charMap = new Map(currentChars.map(c => [c.name, c]));
+        const charMap = new Map(window.CHARACTERS.map(c => [c.name, c]));
         gistChars.forEach(c => {
           if (c && c.name && c.image) {
             const existing = charMap.get(c.name);
@@ -6786,24 +6781,20 @@
     window.bootGame = bootGame;
 
     async function fetchPublicGist(gistId) {
-      try {
-        // Add timestamp to URL to bypass any browser/CDN caching entirely
-        const url = `https://api.github.com/gists/${gistId}?t=${Date.now()}`;
-        const headers = { 'Accept': 'application/vnd.github+json', 'Cache-Control': 'no-cache' };
-        const r = await fetch(url, { headers });
-        if (!r.ok) throw new Error('Gist API error ' + r.status);
-        const data = await r.json();
-        if (!data || !data.files) throw new Error('Invalid Gist response');
-        
-        let chars = [], opeds = [];
-        try { if (data.files['characters.json']) chars = JSON.parse(data.files['characters.json'].content); } catch(e) { console.warn("Error parsing characters.json", e); }
-        try { if (data.files['opeds.json'])      opeds = JSON.parse(data.files['opeds.json'].content);      } catch(e) { console.warn("Error parsing opeds.json", e); }
-        
-        return { chars, opeds };
-      } catch (e) {
-        console.error("fetchPublicGist failed:", e);
-        throw e;
-      }
+      const cacheKey = 'gist-etag-' + gistId;
+      const cachedEtag = localStorage.getItem(cacheKey);
+      const headers = { 'Accept': 'application/vnd.github+json' };
+      if (cachedEtag) headers['If-None-Match'] = cachedEtag;
+      const r = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, { headers });
+      if (r.status === 304) return null;
+      if (!r.ok) throw new Error('Gist API error ' + r.status);
+      const newEtag = r.headers.get('ETag');
+      if (newEtag) localStorage.setItem(cacheKey, newEtag);
+      const data = await r.json();
+      let chars = [], opeds = [];
+      try { if (data.files['characters.json']) chars = JSON.parse(data.files['characters.json'].content); } catch(e) {}
+      try { if (data.files['opeds.json'])      opeds = JSON.parse(data.files['opeds.json'].content);      } catch(e) {}
+      return { chars, opeds };
     }
 
     syncLoad();
@@ -6842,7 +6833,7 @@
           else if (JSON.stringify(existing) !== JSON.stringify(o)) { Object.assign(existing, o); changed++; }
         });
         if (changed) {
-          gistDataVersion = Date.now(); // Update version to bust image cache
+          gistDataVersion = Date.now();
           buildSeriesFilter(true); 
           // Refresh Mod Panel UI if it's open
           if (typeof renderSeriesLibrary === 'function') renderSeriesLibrary();
