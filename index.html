@@ -5947,7 +5947,7 @@
   let opedDuration = 5; // Default toggle is 5s
   let opedGuessesLeft = 5, opedState = 'idle';
   let opedStreak = 0;
-  let opedClipTimer = null, opedProgressTimer = null;
+  let opedClipTimer = null, opedProgressTimer = null, opedErrorTimer = null;
   let opedAcIndex = -1;
   let opedVolume = parseInt(localStorage.getItem('whosdat-oped-volume')) || 100;
   let opedGameMode = 'anime'; // 'anime' or 'song'
@@ -5974,10 +5974,13 @@
       document.getElementById('oped-replay-btn').textContent = '↺ Replay Clip';
     });
     atPlayer.addEventListener('error', () => {
-      // If it's already playing or buffered enough, ignore minor errors
-      if (atPlayer.readyState >= 2 || !atPlayer.paused) return;
-      document.getElementById('oped-status-text').textContent = 'Media unavailable — try another';
-      stopOpedBars();
+      clearTimeout(opedErrorTimer);
+      opedErrorTimer = setTimeout(() => {
+        // If it's already playing or buffered enough, ignore minor errors
+        if (atPlayer.readyState >= 2 || !atPlayer.paused) return;
+        document.getElementById('oped-status-text').textContent = 'Media unavailable — try another';
+        stopOpedBars();
+      }, 2000);
     });
   }
 
@@ -6017,15 +6020,18 @@
           }
         },
         onError: (e) => {
-          // If the player state is already PLAYING (1) or BUFFERING (3), ignore the error
-          const state = ytPlayer.getPlayerState();
-          if (state === 1 || state === 3) return;
-          
-          document.getElementById('oped-status-text').textContent = 'Media unavailable — try another';
-          document.getElementById('oped-status-text').classList.remove('playing');
-          stopOpedBars();
-          document.getElementById('oped-replay-btn').disabled = false;
-          document.getElementById('oped-replay-btn').textContent = '↺ Replay Clip';
+          clearTimeout(opedErrorTimer);
+          opedErrorTimer = setTimeout(() => {
+            // If the player state is already PLAYING (1) or BUFFERING (3), ignore the error
+            const state = ytPlayer.getPlayerState();
+            if (state === 1 || state === 3) return;
+            
+            document.getElementById('oped-status-text').textContent = 'Media unavailable — try another';
+            document.getElementById('oped-status-text').classList.remove('playing');
+            stopOpedBars();
+            document.getElementById('oped-replay-btn').disabled = false;
+            document.getElementById('oped-replay-btn').textContent = '↺ Replay Clip';
+          }, 2000);
         }
       }
     });
@@ -6055,6 +6061,7 @@
 
   function startOpedVisuals() {
     const statusEl = document.getElementById('oped-status-text');
+    clearTimeout(opedErrorTimer);
     statusEl.textContent = 'Playing Music…';
     statusEl.classList.add('playing');
     document.getElementById('oped-bars').classList.add('playing');
@@ -6117,6 +6124,7 @@
           // HTML5 media player (video or audio)
           if (atPlayer) {
             atPlayer.src = opedCurrent.videoUrl || opedCurrent.youtubeId;
+            atPlayer.preload = "auto";
             atPlayer.volume = opedVolume / 100;
             
             // Wait for metadata to get duration for randomization
