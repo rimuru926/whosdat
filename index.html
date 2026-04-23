@@ -2031,6 +2031,11 @@
       </div>
     </div>
 
+    <div style="display:flex; justify-content:center; gap:8px; margin-bottom:12px;">
+      <button id="oped-mode-anime" class="odur-btn active" style="font-size:0.7rem; padding:6px 12px;">Guess Anime</button>
+      <button id="oped-mode-song" class="odur-btn" style="font-size:0.7rem; padding:6px 12px;">Guess Song</button>
+    </div>
+
     <div class="oped-player-card">
       <div class="oped-bars" id="oped-bars">
         <div class="oped-bar"></div><div class="oped-bar"></div>
@@ -5916,6 +5921,7 @@
   let opedClipTimer = null, opedProgressTimer = null;
   let opedAcIndex = -1;
   let opedVolume = parseInt(localStorage.getItem('whosdat-oped-volume')) || 100;
+  let opedGameMode = 'anime'; // 'anime' or 'song'
 
   function bumpOpedStreak(n) {
     const el = document.getElementById('oped-streak-count');
@@ -6195,7 +6201,15 @@
 
   function opedMakeGuess(guess) {
     if (opedState === 'done') return;
-    const correct = opedCurrent.title.trim().toLowerCase();
+    
+    let correct = '';
+    if (opedGameMode === 'anime') {
+      correct = opedCurrent.title.trim().toLowerCase();
+    } else {
+      // If no song name is provided, the anime title is the answer
+      correct = (opedCurrent.song || opedCurrent.title).trim().toLowerCase();
+    }
+
     const attempt = guess.trim().toLowerCase();
     if (!attempt) return;
 
@@ -6263,9 +6277,17 @@
     const acEl = document.getElementById('oped-ac');
     if (!val.trim()) { acEl.innerHTML=''; acEl.classList.remove('open'); return; }
     const q = val.toLowerCase();
-    // Get all unique series names from both characters and existing OP/EDs
-    const allSeries = getKnownSeries().map(([name]) => name);
-    const matches = allSeries.filter(t => t.toLowerCase().includes(q)).slice(0,6);
+    
+    let matches = [];
+    if (opedGameMode === 'anime') {
+      const allSeries = getKnownSeries().map(([name]) => name);
+      matches = allSeries.filter(t => t.toLowerCase().includes(q)).slice(0,6);
+    } else {
+      // Song mode: get all unique song names from OPEDS
+      const allSongs = [...new Set(OPEDS.map(o => o.song).filter(s => s))];
+      matches = allSongs.filter(s => s.toLowerCase().includes(q)).slice(0,6);
+    }
+
     if (!matches.length) { acEl.innerHTML=''; acEl.classList.remove('open'); return; }
     acEl.innerHTML = matches.map((t,i) =>
       `<div class="ac-item" data-i="${i}">${t.replace(new RegExp('('+val.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'), '<em>$1</em>')}</div>`
@@ -6282,18 +6304,34 @@
   // New helper for OP/ED Mod Panel Autocomplete
   function opedModBuildAc(val) {
     const acEl = document.getElementById('oped-mod-title-ac');
-    if (!val.trim()) { acEl.innerHTML=''; acEl.classList.remove('open'); return; }
-    const q = val.toLowerCase();
-    const series = getKnownSeries();
-    const matches = series.filter(([s]) => s.toLowerCase().includes(q));
-    if (!matches.length) { acEl.innerHTML=''; acEl.classList.remove('open'); return; }
-    
-    acEl.innerHTML = matches.map(([s, n]) => 
-      `<div class="series-ac-item" data-series="${s.replace(/"/g,'&quot;')}">
-        <span>${s}</span><span class="series-ac-count">${n} entries</span>
-      </div>`
-    ).join('');
-    acEl.classList.add('open');
+    if (!val.trim()) {
+      // Show all series if empty but focused
+      const series = getKnownSeries().slice(0, 15);
+      acEl.innerHTML = series.map(([s, n]) => 
+        `<div class="series-ac-item" data-series="${s.replace(/"/g,'&quot;')}">
+          <div style="display:flex;flex-direction:column">
+            <span style="font-weight:600;font-size:0.85rem">${s}</span>
+            <span style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">${n} entries in library</span>
+          </div>
+        </div>`
+      ).join('');
+      acEl.classList.add('open');
+    } else {
+      const q = val.toLowerCase();
+      const series = getKnownSeries();
+      const matches = series.filter(([s]) => s.toLowerCase().includes(q)).slice(0, 10);
+      if (!matches.length) { acEl.innerHTML=''; acEl.classList.remove('open'); return; }
+      
+      acEl.innerHTML = matches.map(([s, n]) => 
+        `<div class="series-ac-item" data-series="${s.replace(/"/g,'&quot;')}">
+          <div style="display:flex;flex-direction:column">
+            <span style="font-weight:600;font-size:0.85rem">${s}</span>
+            <span style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">${n} entries in library</span>
+          </div>
+        </div>`
+      ).join('');
+      acEl.classList.add('open');
+    }
     
     acEl.querySelectorAll('.series-ac-item').forEach(item => {
       const select = e => {
@@ -6310,6 +6348,7 @@
 
   document.getElementById('oped-input').addEventListener('input', e => { opedBuildAc(e.target.value); });
   document.getElementById('oped-mod-title').addEventListener('input', e => { opedModBuildAc(e.target.value); });
+  document.getElementById('oped-mod-title').addEventListener('focus', e => { opedModBuildAc(e.target.value); });
   document.getElementById('oped-mod-title').addEventListener('focus', e => { opedModBuildAc(e.target.value); });
   document.addEventListener('click', e => {
     if (!e.target.closest('.series-ac-wrap')) {
@@ -6349,6 +6388,22 @@
   });
 
   document.getElementById('oped-next-btn').addEventListener('click', () => { loadOpedNext(); });
+
+  document.getElementById('oped-mode-anime').addEventListener('click', () => {
+    opedGameMode = 'anime';
+    document.getElementById('oped-mode-anime').classList.add('active');
+    document.getElementById('oped-mode-song').classList.remove('active');
+    document.getElementById('oped-input').placeholder = "Which anime is this from?";
+    loadOpedNext();
+  });
+
+  document.getElementById('oped-mode-song').addEventListener('click', () => {
+    opedGameMode = 'song';
+    document.getElementById('oped-mode-song').classList.add('active');
+    document.getElementById('oped-mode-anime').classList.remove('active');
+    document.getElementById('oped-input').placeholder = "What is the name of this song?";
+    loadOpedNext();
+  });
 
   function renderOpedEntryList() {
     const list = document.getElementById('oped-entry-list');
@@ -6579,6 +6634,10 @@
       stopAll();
       playBtn.textContent = '⏳ Loading...';
       
+      // Reset global opedStart to 0 for preview
+      opedStart = 0;
+      opedStartLocked = true;
+
       if (parsed.type === 'youtube') {
         ytPlayer.loadVideoById({ videoId: parsed.id, startSeconds: 0 });
         modPreviewTimer = setInterval(() => {
@@ -6592,7 +6651,7 @@
       } else if (parsed.type === 'animethemes' || parsed.type === 'direct') {
         atPlayer.src = parsed.fullUrl;
         atPlayer.volume = opedVolume / 100;
-        atPlayer.currentTime = 0; // Force start from beginning
+        atPlayer.currentTime = 0;
         atPlayer.play();
         modPreviewTimer = setInterval(() => {
           updateProgress(atPlayer.currentTime, atPlayer.duration);
