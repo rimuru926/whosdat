@@ -2639,12 +2639,12 @@
   // ═══════════════════════════════════════════════════
   //  CHARACTERS — populated from Gist on load
   // ═══════════════════════════════════════════════════
-  var CHARACTERS = []; window.CHARACTERS = CHARACTERS;
+  window.CHARACTERS = [];
 
   // ═══════════════════════════════════════════════════
   //  OP/ED DATA
   // ═══════════════════════════════════════════════════
-  var OPEDS = []; window.OPEDS = OPEDS;
+  window.OPEDS = [];
   let editingOpedIdx = null;
   (function loadOpeds() {
     try {
@@ -2652,7 +2652,7 @@
       if (Array.isArray(saved)) window.OPEDS = saved;
     } catch(e) {}
   })();
-  
+  window.OPEDS = OPEDS;
   function saveOpeds() { try { localStorage.setItem('whosdat-opeds', JSON.stringify(window.OPEDS)); } catch(e) {} }
 
   // ═══════════════════════════════════════════════════
@@ -4804,7 +4804,7 @@
     if (q2)     char.quote2 = q2;
     if (q3)     char.quote3 = q3;
 
-    if (!window.CHARACTERS) var CHARACTERS = []; window.CHARACTERS = CHARACTERS;
+    if (!window.CHARACTERS) window.CHARACTERS = [];
     const normName = name.toLowerCase().trim();
     const existing = window.CHARACTERS.find(c => c.name.toLowerCase().trim() === normName);
     if (existing) {
@@ -6737,28 +6737,17 @@
 
     function mergeData(gistChars, gistOpeds) {
       if (Array.isArray(gistChars)) {
+        if (!window.CHARACTERS) window.CHARACTERS = [];
+        // Ensure we have a valid array to map over
+        const currentChars = Array.isArray(window.CHARACTERS) ? window.CHARACTERS : [];
+        const charMap = new Map(currentChars.map(c => [c.name, c]));
         gistChars.forEach(c => {
           if (c && c.name && c.image) {
-            const existing = CHARACTERS.find(x => x.name === c.name);
+            const existing = charMap.get(c.name);
             if (!existing) {
-              CHARACTERS.push(c);
+              window.CHARACTERS.push(c);
+              charMap.set(c.name, c);
             } else {
-              Object.assign(existing, c);
-            }
-          }
-        });
-      }
-      if (Array.isArray(gistOpeds)) {
-        gistOpeds.forEach(o => {
-          const key = o.videoUrl || o.youtubeId;
-          if (o && key) {
-            if (!OPEDS.some(x => (x.videoUrl || x.youtubeId) === key)) {
-              OPEDS.push(o);
-            }
-          }
-        });
-      }
-    } else {
               // Update existing character with Gist data (including new image)
               Object.assign(existing, c);
             }
@@ -6768,7 +6757,7 @@
       if (Array.isArray(gistOpeds)) {
         gistOpeds.forEach(o => {
           if (o && (o.youtubeId || o.videoUrl)) {
-            if (!window.OPEDS) var OPEDS = []; window.OPEDS = OPEDS;
+            if (!window.OPEDS) window.OPEDS = [];
             const key = o.videoUrl || o.youtubeId;
             if (!window.OPEDS.some(x => (x.videoUrl || x.youtubeId) === key)) window.OPEDS.push(o);
           }
@@ -6797,16 +6786,9 @@
     window.bootGame = bootGame;
 
     async function fetchPublicGist(gistId) {
-      const r = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, {
-        headers: { 'Accept': 'application/vnd.github+json' }
-      });
-      if (!r.ok) throw new Error('Gist API error ' + r.status);
-      const data = await r.json();
-      let chars = [], opeds = [];
-      try { if (data.files['characters.json']) chars = JSON.parse(data.files['characters.json'].content); } catch(e) {}
-      try { if (data.files['opeds.json'])      opeds = JSON.parse(data.files['opeds.json'].content);      } catch(e) {}
-      return { chars, opeds };
-    }?t=${Date.now()}`;
+      try {
+        // Add timestamp to URL to bypass any browser/CDN caching entirely
+        const url = `https://api.github.com/gists/${gistId}?t=${Date.now()}`;
         const headers = { 'Accept': 'application/vnd.github+json', 'Cache-Control': 'no-cache' };
         const r = await fetch(url, { headers });
         if (!r.ok) throw new Error('Gist API error ' + r.status);
