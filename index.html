@@ -2521,6 +2521,21 @@
             ▸ <strong>Direct file</strong> — any <code>.mp4</code>, <code>.webm</code>, <code>.mp3</code>, <code>.ogg</code>, <code>.m4a</code> URL
           </div>
           <div id="oped-link-status" style="font-size:0.75rem;margin-top:6px;min-height:1.2em"></div>
+          
+          <!-- Preview Player for Mod Panel -->
+          <div id="oped-mod-preview-wrap" style="display:none; margin-top:12px; padding:12px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; flex-direction:column; gap:8px;">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <span style="font-size:0.7rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.05em;">Preview Player</span>
+              <span id="oped-mod-preview-time" style="font-size:0.7rem; font-family:monospace; color:var(--muted);">0:00 / 0:00</span>
+            </div>
+            <div style="width:100%; height:4px; background:var(--surface); border-radius:2px; overflow:hidden; cursor:pointer;" id="oped-mod-preview-progress-bg">
+              <div id="oped-mod-preview-progress-bar" style="width:0%; height:100%; background:var(--accent); transition:width 0.1s linear;"></div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" id="oped-mod-preview-play" style="flex:1; padding:6px; background:var(--surface); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:0.75rem; font-weight:600; cursor:pointer;">▶ Play</button>
+              <button type="button" id="oped-mod-preview-stop" style="padding:6px 12px; background:var(--surface); border:1px solid var(--border); border-radius:6px; color:var(--muted); font-size:0.75rem; font-weight:600; cursor:pointer;">Stop</button>
+            </div>
+          </div>
         </div>
 
         <div id="oped-mod-err" style="font-size:0.8rem;color:var(--wrong);min-height:1em"></div>
@@ -6052,9 +6067,24 @@
           // HTML5 media player (video or audio)
           if (atPlayer) {
             atPlayer.src = opedCurrent.videoUrl || opedCurrent.youtubeId;
-            atPlayer.currentTime = 0;
             atPlayer.volume = opedVolume / 100;
-            atPlayer.play().catch(() => { statusEl.textContent = 'Error playing video — try another'; });
+            
+            // Wait for metadata to get duration for randomization
+            const onMetadata = () => {
+              let safeDur = atPlayer.duration;
+              if (!safeDur || isNaN(safeDur) || safeDur < 10) safeDur = 90;
+              if (!opedStartLocked) {
+                const maxStart = Math.max(0, safeDur - opedDuration - 5);
+                opedStart = Math.floor(Math.random() * maxStart);
+                opedStartLocked = true;
+              }
+              atPlayer.currentTime = opedStart;
+              atPlayer.play().catch(() => { statusEl.textContent = 'Error playing video — try another'; });
+              atPlayer.removeEventListener('loadedmetadata', onMetadata);
+            };
+
+            if (atPlayer.readyState >= 1) onMetadata();
+            else atPlayer.addEventListener('loadedmetadata', onMetadata);
           }
         } else if (src === 'dailymotion') {
           // Dailymotion embed iframe
@@ -6495,6 +6525,7 @@
         if (r.ok) {
           statusEl.textContent = '✅ YouTube video found!';
           statusEl.style.color = 'var(--correct)';
+          showModPreview(parsed);
         } else {
           statusEl.textContent = '❌ Video not found or unavailable';
           statusEl.style.color = 'var(--wrong)';
@@ -6504,7 +6535,89 @@
         statusEl.textContent = '❌ Could not verify link';
         statusEl.style.color = 'var(--wrong)';
       });
+
+    if (parsed.type !== 'youtube') showModPreview(parsed);
   });
+
+  // ── Mod Panel Preview Player Logic ────────────────
+  let modPreviewTimer = null;
+  function showModPreview(parsed) {
+    const wrap = document.getElementById('oped-mod-preview-wrap');
+    const playBtn = document.getElementById('oped-mod-preview-play');
+    const stopBtn = document.getElementById('oped-mod-preview-stop');
+    const pBar = document.getElementById('oped-mod-preview-progress-bar');
+    const pTime = document.getElementById('oped-mod-preview-time');
+    const pBg = document.getElementById('oped-mod-preview-progress-bg');
+
+    wrap.style.display = 'flex';
+    playBtn.textContent = '▶ Play Full Song';
+    pBar.style.width = '0%';
+    pTime.textContent = '0:00 / 0:00';
+
+    const fmtTime = s => {
+      if (!s || isNaN(s)) return '0:00';
+      const m = Math.floor(s / 60);
+      const rs = Math.floor(s % 60);
+      return m + ':' + (rs < 10 ? '0' : '') + rs;
+    };
+
+    const updateProgress = (cur, dur) => {
+      pBar.style.width = (cur / dur * 100) + '%';
+      pTime.textContent = fmtTime(cur) + ' / ' + fmtTime(dur);
+    };
+
+    const stopAll = () => {
+      clearInterval(modPreviewTimer);
+      try { ytPlayer.stopVideo(); } catch(e){}
+      try { if(atPlayer) { atPlayer.pause(); atPlayer.src = ''; } } catch(e){}
+      try { if(embedPlayer) { embedPlayer.src = ''; } } catch(e){}
+      playBtn.textContent = '▶ Play Full Song';
+      pBar.style.width = '0%';
+    };
+
+    playBtn.onclick = () => {
+      stopAll();
+      playBtn.textContent = '⏳ Loading...';
+      
+      if (parsed.type === 'youtube') {
+        ytPlayer.loadVideoById({ videoId: parsed.id, startSeconds: 0 });
+        modPreviewTimer = setInterval(() => {
+          const cur = ytPlayer.getCurrentTime();
+          const dur = ytPlayer.getDuration();
+          if (dur > 0) {
+            updateProgress(cur, dur);
+            playBtn.textContent = '⏸ Playing YouTube';
+          }
+        }, 500);
+      } else if (parsed.type === 'animethemes' || parsed.type === 'direct') {
+        atPlayer.src = parsed.fullUrl;
+        atPlayer.volume = opedVolume / 100;
+        atPlayer.play();
+        modPreviewTimer = setInterval(() => {
+          updateProgress(atPlayer.currentTime, atPlayer.duration);
+          playBtn.textContent = '⏸ Playing Media';
+        }, 500);
+      } else if (parsed.type === 'dailymotion') {
+        embedPlayer.src = 'https://www.dailymotion.com/embed/video/' + parsed.id + '?autoplay=1';
+        playBtn.textContent = '⏸ Playing Dailymotion';
+      } else {
+        window.open(parsed.fullUrl, '_blank');
+        playBtn.textContent = '↗ Opened in Tab';
+      }
+    };
+
+    stopBtn.onclick = stopAll;
+    
+    pBg.onclick = (e) => {
+      const rect = pBg.getBoundingClientRect();
+      const pct = (e.clientX - rect.left) / rect.width;
+      if (parsed.type === 'youtube') {
+        ytPlayer.seekTo(pct * ytPlayer.getDuration());
+      } else if (parsed.type === 'animethemes' || parsed.type === 'direct') {
+        atPlayer.currentTime = pct * atPlayer.duration;
+      }
+    };
+  }
 
   document.querySelectorAll('.mod-tab-btn').forEach(btn => {
     if (btn.dataset.modtab === 'oped') {
