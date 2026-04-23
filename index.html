@@ -5947,7 +5947,7 @@
   let opedDuration = 5; // Default toggle is 5s
   let opedGuessesLeft = 5, opedState = 'idle';
   let opedStreak = 0;
-  let opedClipTimer = null, opedProgressTimer = null, opedErrorTimer = null;
+  let opedClipTimer = null, opedProgressTimer = null;
   let opedAcIndex = -1;
   let opedVolume = parseInt(localStorage.getItem('whosdat-oped-volume')) || 100;
   let opedGameMode = 'anime'; // 'anime' or 'song'
@@ -5973,7 +5973,9 @@
       document.getElementById('oped-replay-btn').disabled = (opedState === 'done');
       document.getElementById('oped-replay-btn').textContent = '↺ Replay Clip';
     });
-    atPlayer.addEventListener('error', () => { if (atPlayer.readyState >= 2 || !atPlayer.paused) return; document.getElementById('oped-status-text').textContent = 'Media unavailable'; stopOpedBars(); });
+    atPlayer.addEventListener('error', () => {
+      document.getElementById('oped-status-text').textContent = 'Video unavailable — try another';
+      stopOpedBars();
     });
   }
 
@@ -6012,7 +6014,12 @@
             startOpedVisuals();
           }
         },
-        onError: (e) => { const state = ytPlayer.getPlayerState(); if (state === 1 || state === 3) return; document.getElementById('oped-status-text').textContent = 'Media unavailable'; stopOpedBars(); }
+        onError: (e) => {
+          document.getElementById('oped-status-text').textContent = 'Video unavailable — try another';
+          document.getElementById('oped-status-text').classList.remove('playing');
+          stopOpedBars();
+          document.getElementById('oped-replay-btn').disabled = false;
+          document.getElementById('oped-replay-btn').textContent = '↺ Replay Clip';
         }
       }
     });
@@ -6042,8 +6049,7 @@
 
   function startOpedVisuals() {
     const statusEl = document.getElementById('oped-status-text');
-    clearTimeout(opedErrorTimer);
-    statusEl.textContent = 'Playing Music…';
+    statusEl.textContent = 'Playing…';
     statusEl.classList.add('playing');
     document.getElementById('oped-bars').classList.add('playing');
     
@@ -6105,7 +6111,6 @@
           // HTML5 media player (video or audio)
           if (atPlayer) {
             atPlayer.src = opedCurrent.videoUrl || opedCurrent.youtubeId;
-            atPlayer.preload = "auto";
             atPlayer.volume = opedVolume / 100;
             
             // Wait for metadata to get duration for randomization
@@ -6152,7 +6157,7 @@
             opedStart = Math.floor(Math.random() * maxStart) + 5;
             opedStartLocked = true;
           }
-          if(ytPlayer && ytPlayer.loadVideoById) ytPlayer.loadVideoById({
+          ytPlayer.loadVideoById({
             videoId: opedCurrent.youtubeId,
             startSeconds: opedStart,
             endSeconds: opedStart + opedDuration + 1
@@ -6169,39 +6174,6 @@
 
   function stopOpedBars() {
     document.getElementById('oped-bars').classList.remove('playing');
-  }
-
-
-  let opedTypeFilter = 'both';
-  let opedSeriesFilter = '';
-
-  document.querySelectorAll('.oped-type-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.oped-type-btn').forEach(b => {
-        b.classList.remove('active');
-        b.style.borderColor = 'var(--border)';
-        b.style.color = 'var(--text)';
-      });
-      btn.classList.add('active');
-      btn.style.borderColor = 'var(--accent)';
-      btn.style.color = 'var(--accent)';
-      opedTypeFilter = btn.dataset.type;
-    });
-  });
-
-  document.getElementById('oped-series-search')?.addEventListener('input', (e) => {
-    opedSeriesFilter = e.target.value.toLowerCase().trim();
-  });
-
-  function getFilteredOpedPool() {
-    let pool = [...(window.OPEDS || [])];
-    if (opedTypeFilter !== 'both') {
-      pool = pool.filter(o => o.type === opedTypeFilter);
-    }
-    if (opedSeriesFilter) {
-      pool = pool.filter(o => (o.series || '').toLowerCase().includes(opedSeriesFilter));
-    }
-    return pool.sort(() => Math.random() - 0.5);
   }
 
   function initOpedGame() {
@@ -7061,6 +7033,38 @@ self.addEventListener('fetch', e => {
       }
     });
   });
+
+  let opedTypeFilter = 'both';
+  let opedSeriesFilter = '';
+
+  document.querySelectorAll('.oped-type-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.oped-type-btn').forEach(b => {
+        b.classList.remove('active');
+        b.style.borderColor = 'var(--border)';
+        b.style.color = 'var(--text)';
+      });
+      btn.classList.add('active');
+      btn.style.borderColor = 'var(--accent)';
+      btn.style.color = 'var(--accent)';
+      opedTypeFilter = btn.dataset.type;
+    });
+  });
+
+  document.getElementById('oped-series-search')?.addEventListener('input', (e) => {
+    opedSeriesFilter = e.target.value.toLowerCase().trim();
+  });
+
+  function getFilteredOpedPool() {
+    let pool = [...(window.OPEDS || [])];
+    if (opedTypeFilter !== 'both') {
+      pool = pool.filter(o => o.type === opedTypeFilter);
+    }
+    if (opedSeriesFilter) {
+      pool = pool.filter(o => (o.series || '').toLowerCase().includes(opedSeriesFilter));
+    }
+    return pool.sort(() => Math.random() - 0.5);
+  }
 
   </script>
 </body>
