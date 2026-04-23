@@ -10,10 +10,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">function forceRefreshData() { localStorage.removeItem("pixelwho-gist-cache-v1"); localStorage.removeItem("gist-etag-640a8cd08e02caf5732c0f98c6cb7af1"); location.reload(true); } setInterval(() => { const count = (window.CHARACTERS || []).length; document.getElementById("debug-info").innerHTML = "Chars: " + count; }, 2000);</script>
+  <script src="https://www.youtube.com/iframe_api">function forceRefreshData() { localStorage.removeItem("pixelwho-gist-cache-v1"); localStorage.removeItem("gist-etag-640a8cd08e02caf5732c0f98c6cb7af1"); location.reload(true); } setInterval(() => { const count = (window.CHARACTERS || []).length; document.getElementById("debug-info").innerHTML = "Chars: " + count; }, 2000);</script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js">function forceRefreshData() { localStorage.removeItem("pixelwho-gist-cache-v1"); localStorage.removeItem("gist-etag-640a8cd08e02caf5732c0f98c6cb7af1"); location.reload(true); } setInterval(() => { const count = (window.CHARACTERS || []).length; document.getElementById("debug-info").innerHTML = "Chars: " + count; }, 2000);</script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js">function forceRefreshData() { localStorage.removeItem("pixelwho-gist-cache-v1"); localStorage.removeItem("gist-etag-640a8cd08e02caf5732c0f98c6cb7af1"); location.reload(true); } setInterval(() => { const count = (window.CHARACTERS || []).length; document.getElementById("debug-info").innerHTML = "Chars: " + count; }, 2000);</script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -3357,12 +3357,6 @@
     gInput.focus();
   }
 
-
-  function getImgUrl(url) {
-    if (!url || typeof url !== 'string' || url.startsWith('data:')) return url;
-    return url + (url.includes('?') ? '&' : '?') + 'v=' + gistDataVersion;
-  }
-
   function applyImageLoad() {
     // Show loader immediately
     loadCover.style.display='flex';
@@ -3389,7 +3383,7 @@
         charImg.style.opacity='1'; 
         charImg.src='https://placehold.co/400x500/1a1929/ff8906?text='+encodeURIComponent(currentChar.name)+'&font=bebas-neue'; 
     };
-    img.src = getImgUrl(currentChar.image);
+    img.src = currentChar.image;
   }
 
   function loadDailyMode() {
@@ -5120,7 +5114,7 @@
 
         const top = document.createElement('div'); top.className = 'url-conv-top';
         const thumb = document.createElement('img'); thumb.className = 'url-conv-thumb';
-        thumb.src = getImgUrl(c.image);
+        thumb.src = c.image;
         thumb.onerror = () => { thumb.src = 'https://placehold.co/46x60/221f35/ff8906?text=?'; };
         const meta = document.createElement('div'); meta.style.flex = '1';
         const nm = document.createElement('div'); nm.className = 'url-conv-name';
@@ -5175,7 +5169,7 @@
 
       const top = document.createElement('div'); top.className = 'url-conv-top';
       const thumb = document.createElement('img'); thumb.className = 'url-conv-thumb';
-      thumb.src = getImgUrl(c.image); thumb.loading = 'lazy';
+      thumb.src = c.image; thumb.loading = 'lazy';
       thumb.onerror = () => { thumb.src = 'https://placehold.co/46x60/221f35/ff8906?text=?'; };
       const meta = document.createElement('div'); meta.style.flex = '1';
       const nm = document.createElement('div'); nm.className = 'url-conv-name'; nm.textContent = c.name;
@@ -5268,7 +5262,7 @@
       const item = document.createElement('div');
       item.className = 'no-quote-item';
       const thumb = document.createElement('img');
-      thumb.className = 'no-quote-thumb'; thumb.src = getImgUrl(c.image); thumb.loading = 'lazy';
+      thumb.className = 'no-quote-thumb'; thumb.src = c.image; thumb.loading = 'lazy';
       thumb.onerror = () => { thumb.src = 'https://placehold.co/32x42/221f35/ff8906?text=?'; };
       const info = document.createElement('div'); info.style.flex = '1';
       const nm  = document.createElement('div'); nm.className  = 'no-quote-name';   nm.textContent = c.name;
@@ -5311,7 +5305,7 @@
       const item = document.createElement('div');
       item.className = 'edit-char-item';
       const thumb = document.createElement('img');
-      thumb.className = 'edit-char-thumb'; thumb.src = getImgUrl(c.image); thumb.loading = 'lazy';
+      thumb.className = 'edit-char-thumb'; thumb.src = c.image; thumb.loading = 'lazy';
       thumb.onerror = () => { thumb.src = 'https://placehold.co/32x42/221f35/ff8906?text=?'; };
       const info = document.createElement('div'); info.style.flex='1';
       const nm = document.createElement('div'); nm.className = 'edit-char-name'; nm.textContent = c.name;
@@ -5598,7 +5592,6 @@
 
   let lastGistEtag = '';
   let lastGistUpdate = '';
-  let gistDataVersion = Date.now();
 
   async function gistFetch() {
     const r = await fetch('https://api.github.com/gists/' + syncGistId, {
@@ -6833,13 +6826,10 @@
           else if (JSON.stringify(existing) !== JSON.stringify(o)) { Object.assign(existing, o); changed++; }
         });
         if (changed) {
-          gistDataVersion = Date.now();
           buildSeriesFilter(true); 
           // Refresh Mod Panel UI if it's open
           if (typeof renderSeriesLibrary === 'function') renderSeriesLibrary();
           if (typeof renderOpedEntryList === 'function') renderOpedEntryList();
-          if (typeof renderEditList === 'function') renderEditList(document.getElementById('edit-search') ? document.getElementById('edit-search').value : '');
-          if (typeof updateModCharCount === 'function') updateModCharCount();
           
           (chars||[]).forEach(c => {
             if (!c || !c.name) return;
@@ -6977,6 +6967,6 @@ self.addEventListener('fetch', e => {
   }
 
   
-  </script>
-</body>
+  function forceRefreshData() { localStorage.removeItem("pixelwho-gist-cache-v1"); localStorage.removeItem("gist-etag-640a8cd08e02caf5732c0f98c6cb7af1"); location.reload(true); } setInterval(() => { const count = (window.CHARACTERS || []).length; document.getElementById("debug-info").innerHTML = "Chars: " + count; }, 2000);</script>
+<div id="debug-panel" style="position:fixed; bottom:10px; right:10px; z-index:9999; background:rgba(0,0,0,0.8); padding:10px; border-radius:8px; border:1px solid var(--accent); font-size:12px; color:white; max-width:200px;"><div style="font-weight:bold; margin-bottom:5px; color:var(--accent);">DEBUG PANEL</div><div id="debug-info" style="margin-bottom:8px; opacity:0.8;">Loading...</div><button onclick="forceRefreshData()" style="width:100%; background:var(--accent); border:none; color:black; padding:5px; border-radius:4px; cursor:pointer; font-weight:bold;">FORCE REFRESH DATA</button></div></body>
 </html>
