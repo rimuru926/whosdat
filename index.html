@@ -5963,6 +5963,7 @@
   let opedPool = [], opedCurrent = null, opedStart = 0;
   let opedStartLocked = false;
   let opedDuration = 5; // Default toggle is 5s
+  let opedIsFullPlayback = false;
   let opedGuessesLeft = 5, opedState = 'idle';
   let opedStreak = 0;
   let opedClipTimer = null, opedProgressTimer = null;
@@ -6077,13 +6078,14 @@
     
     // Use a tiny timeout to ensure the transition reset is processed by the browser
     setTimeout(() => {
-      pb.style.transition = 'width ' + opedDuration + 's linear';
+      const dur = opedIsFullPlayback ? (atPlayer.duration || 90) : opedDuration;
+      pb.style.transition = 'width ' + dur + 's linear';
       pb.style.width = '100%';
     }, 50);
 
     // Set the stop timer only AFTER playback has actually started
     clearTimeout(opedClipTimer);
-    const clipDuration = getOpedClipDuration();
+    const clipDuration = opedIsFullPlayback ? 9999 : getOpedClipDuration();
     opedClipTimer = setTimeout(() => {
       try { ytPlayer.stopVideo(); } catch(e) {}
       try { if(atPlayer) { atPlayer.pause(); atPlayer.src = ''; } } catch(e) {}
@@ -6097,6 +6099,7 @@
   }
 
   function getOpedClipDuration() {
+    if (opedIsFullPlayback) return 9999;
     if (!opedCurrent) return opedDuration;
     // If a custom end time is set, use it
     if (opedCurrent.endTime && opedStart) {
@@ -6213,6 +6216,7 @@
   }
 
   function loadOpedNext() {
+    opedIsFullPlayback = false;
     const inputEl = document.getElementById('oped-input');
     inputEl.value = ''; inputEl.disabled = false;
     document.getElementById('oped-ac').innerHTML = '';
@@ -6497,8 +6501,14 @@
         </div>`;
       
       item.querySelector('.oped-entry-play').addEventListener('click', () => {
-        opedCurrent = entry; opedStart = 0; opedStartLocked = false;
-        document.querySelectorAll('.drawer-item').forEach(di => { if(di.dataset.section === 'oped') di.click(); });
+        opedCurrent = entry; 
+        opedStart = 0; 
+        opedStartLocked = true; // Lock start at 0 for full playback
+        opedIsFullPlayback = true; // Flag for full duration
+        // Switch to OP/ED section
+        document.querySelectorAll('.drawer-item').forEach(di => { 
+          if(di.dataset.tab === 'oped') di.click(); 
+        });
         setTimeout(() => opedPlayClip(), 200);
       });
       item.querySelector('.oped-entry-edit').addEventListener('click', () => {
