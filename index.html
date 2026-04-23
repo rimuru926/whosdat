@@ -6654,10 +6654,18 @@
 
     function mergeData(gistChars, gistOpeds) {
       if (Array.isArray(gistChars)) {
+        if (!window.CHARACTERS) window.CHARACTERS = [];
+        const charMap = new Map(window.CHARACTERS.map(c => [c.name, c]));
         gistChars.forEach(c => {
           if (c && c.name && c.image) {
-            if (!window.CHARACTERS) window.CHARACTERS = [];
-            if (!window.CHARACTERS.some(x => x.name === c.name)) window.CHARACTERS.push(c);
+            const existing = charMap.get(c.name);
+            if (!existing) {
+              window.CHARACTERS.push(c);
+              charMap.set(c.name, c);
+            } else {
+              // Update existing character with Gist data (including new image)
+              Object.assign(existing, c);
+            }
           }
         });
       }
@@ -6669,6 +6677,10 @@
             if (!window.OPEDS.some(x => (x.videoUrl || x.youtubeId) === key)) window.OPEDS.push(o);
           }
         });
+        // Refresh the game pool if we added new OPEDs
+        if (window.OPEDS && window.OPEDS.length > 0) {
+          window.opedPool = [...window.OPEDS].sort(() => Math.random() - 0.5);
+        }
       }
     }
 
@@ -6732,10 +6744,11 @@
           if (!existing) { window.CHARACTERS.push(c); changed++; }
           else if (JSON.stringify(existing) !== JSON.stringify(c)) { Object.assign(existing, c); changed++; }
         });
-        const opedMap = new Map(window.OPEDS.map(o => [o.youtubeId, o]));
+        const opedMap = new Map(window.OPEDS.map(o => [o.videoUrl || o.youtubeId, o]));
         (opeds||[]).forEach(o => {
-          if (!o || !o.youtubeId) return;
-          const existing = opedMap.get(o.youtubeId);
+          const key = o.videoUrl || o.youtubeId;
+          if (!o || !key) return;
+          const existing = opedMap.get(key);
           if (!existing) { window.OPEDS.push(o); changed++; }
           else if (JSON.stringify(existing) !== JSON.stringify(o)) { Object.assign(existing, o); changed++; }
         });
