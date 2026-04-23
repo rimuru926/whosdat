@@ -2037,9 +2037,24 @@
       </div>
     </div>
 
-    <div style="display:flex; justify-content:center; gap:8px; margin-bottom:12px;">
-      <button id="oped-mode-anime" class="odur-btn active" style="font-size:0.7rem; padding:6px 12px;">Guess Anime</button>
-      <button id="oped-mode-song" class="odur-btn" style="font-size:0.7rem; padding:6px 12px;">Guess Song</button>
+    <div style="width:100%; margin-bottom:12px;">
+      <div style="position:relative; margin-bottom:10px;">
+        <input id="oped-series-search" type="text" class="series-search-input" placeholder="Search series..." style="padding-right:40px;">
+        <span style="position:absolute; right:14px; top:50%; transform:translateY(-50%); opacity:0.5; pointer-events:none;">🔍</span>
+      </div>
+      <div id="oped-series-chips" class="series-filter" style="padding:0 0 8px 0; margin-bottom:10px;"></div>
+      
+      <div style="display:flex; justify-content:center; gap:8px;">
+        <div style="display:flex; background:var(--surface); border:1.5px solid var(--border); border-radius:12px; padding:4px; gap:4px;">
+          <button class="oped-type-btn active" data-type="both" style="padding:6px 12px; background:var(--surface2); border:1.5px solid var(--accent); border-radius:9px; color:var(--accent); font-family:Outfit,sans-serif; font-size:0.75rem; font-weight:600; cursor:pointer;">Both</button>
+          <button class="oped-type-btn" data-type="OP" style="padding:6px 12px; background:transparent; border:1.5px solid var(--border); border-radius:9px; color:var(--text); font-family:Outfit,sans-serif; font-size:0.75rem; font-weight:600; cursor:pointer;">OP</button>
+          <button class="oped-type-btn" data-type="ED" style="padding:6px 12px; background:transparent; border:1.5px solid var(--border); border-radius:9px; color:var(--text); font-family:Outfit,sans-serif; font-size:0.75rem; font-weight:600; cursor:pointer;">ED</button>
+        </div>
+        <div style="display:flex; background:var(--surface); border:1.5px solid var(--border); border-radius:12px; padding:4px; gap:4px;">
+          <button id="oped-mode-anime" class="odur-btn active" style="font-size:0.7rem; padding:6px 12px;">Guess Anime</button>
+          <button id="oped-mode-song" class="odur-btn" style="font-size:0.7rem; padding:6px 12px;">Guess Song</button>
+        </div>
+      </div>
     </div>
 
     <div class="oped-player-card">
@@ -2754,7 +2769,10 @@
       if (t === 'quiz') { if (!quizReady) { quizReady = true; initQuiz(); } }
       if (t === 'stats') { renderStats(); }
       if (t === 'mod') initModPanel();
-      if (t === 'oped') { if (!opedReady) { opedReady = true; initOpedGame(); } }
+      if (t === 'oped') { 
+        if (!opedReady) { opedReady = true; initOpedGame(); }
+        setTimeout(renderOpedSeriesChips, 100);
+      }
       if (t === 'themes') { updateThemePickerActive(); }
       if (t === 'wishlist') { fetchWishlist(); }
       
@@ -6168,7 +6186,20 @@
 
     const src = opedCurrent.videoSource;
     if (src === 'animethemes' || src === 'direct' || src === 'dailymotion' || src === 'bilibili' || src === 'niconico') doPlay();
-    else if (ytReady) doPlay();
+    else if (ytReady) {
+      // For YouTube, we try to play it. If it fails, the onError handler will catch it.
+      // However, some videos are restricted but don't trigger onError immediately.
+      // We'll add a timeout to check if visuals started.
+      doPlay();
+      setTimeout(() => {
+        const statusEl = document.getElementById('oped-status-text');
+        if (statusEl.textContent === 'Buffering…' && opedState !== 'done') {
+          statusEl.textContent = 'Video restricted or unavailable — try another';
+          document.getElementById('oped-replay-btn').disabled = false;
+          document.getElementById('oped-replay-btn').textContent = '↺ Replay Clip';
+        }
+      }, 5000);
+    }
     else ytPendingPlay = doPlay;
   }
 
@@ -7048,11 +7079,23 @@ self.addEventListener('fetch', e => {
       btn.style.borderColor = 'var(--accent)';
       btn.style.color = 'var(--accent)';
       opedTypeFilter = btn.dataset.type;
+      if (opedReady) {
+        opedPool = getFilteredOpedPool();
+        loadOpedNext();
+      }
     });
   });
 
   document.getElementById('oped-series-search')?.addEventListener('input', (e) => {
     opedSeriesFilter = e.target.value.toLowerCase().trim();
+    if (opedReady) {
+      // Debounce slightly to avoid excessive pool refreshes while typing
+      clearTimeout(window._opedSearchTimer);
+      window._opedSearchTimer = setTimeout(() => {
+        opedPool = getFilteredOpedPool();
+        loadOpedNext();
+      }, 500);
+    }
   });
 
 
@@ -7063,7 +7106,8 @@ self.addEventListener('fetch', e => {
     const opeds = window.OPEDS || [];
     const seriesMap = {};
     opeds.forEach(o => {
-      if (o.series) seriesMap[o.series] = (seriesMap[o.series] || 0) + 1;
+      const s = o.series || o.title;
+      if (s) seriesMap[s] = (seriesMap[s] || 0) + 1;
     });
     
     const sortedSeries = Object.keys(seriesMap).sort();
@@ -7091,6 +7135,10 @@ self.addEventListener('fetch', e => {
         
         opedSeriesFilter = chip.dataset.series.toLowerCase();
         document.getElementById('oped-series-search').value = chip.dataset.series;
+        if (opedReady) {
+          opedPool = getFilteredOpedPool();
+          loadOpedNext();
+        }
       });
     });
   }
@@ -7132,7 +7180,7 @@ self.addEventListener('fetch', e => {
       pool = pool.filter(o => o.type === opedTypeFilter);
     }
     if (opedSeriesFilter) {
-      pool = pool.filter(o => (o.series || '').toLowerCase().includes(opedSeriesFilter));
+      pool = pool.filter(o => (o.series || o.title || '').toLowerCase().includes(opedSeriesFilter));
     }
     return pool.sort(() => Math.random() - 0.5);
   }
